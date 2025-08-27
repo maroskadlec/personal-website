@@ -290,10 +290,11 @@
 .p-10 { padding: 1rem; }
 .p-20 { padding: 2rem; }
 .p-30 { padding: 3rem; }
+.py-10 { padding: 1rem 0; }
+.py-30 { padding: 3rem 0; }
 .py-60 { padding: 6rem 0; }
 .py-80 { padding: 8rem 0; }
 .py-100 { padding: 10rem 0; }
-.py-30 { padding: 3rem 0; }
 .px-20 { padding: 0 2rem; }
 .px-30 { padding: 0 3rem; }
 .py-12-px-30 { padding: 1.2rem 3rem; }
