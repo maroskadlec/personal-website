@@ -901,8 +901,8 @@
 
 @media (max-width: 768px) {
     .container { padding: 0 1rem; }
-    .py-80 { padding: 6rem 0; }
-    .hero-title { 
+    .py-80 { padding: 4rem 0; }
+    .hero-title {
         font-size: 36px;
         line-height: 140%;
         letter-spacing: -0.5px;
