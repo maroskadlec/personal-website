@@ -903,18 +903,18 @@
     .container { padding: 0 1rem; }
     .py-80 { padding: 4rem 0; }
 
-    /* Fix background gradient coverage on mobile */
+    /* Use solid light green background instead of gradient on mobile/tablet */
     .body-base {
-        background-attachment: scroll !important;
-        background-size: 100% auto !important;
+        background: #e0f7fa !important;
+        background-attachment: initial !important;
+        background-size: initial !important;
         min-height: 100% !important;
     }
 
-    /* Ensure html and body cover full height */
+    /* Ensure html and body have solid background */
     html, body {
         height: 100%;
-        background: linear-gradient(to bottom right, #e0f7fa, #e8f5e9, #fffde7);
-        background-attachment: scroll;
+        background: #e0f7fa;
     }
 
     .hero-title {
