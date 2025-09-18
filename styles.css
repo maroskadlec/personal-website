@@ -901,7 +901,32 @@
 
 @media (max-width: 768px) {
     .container { padding: 0 1rem; }
-    .py-80 { padding: 4rem 0; }
+    .py-80 { padding: 3rem 0; }
+
+    /* Specific fix for hero section on real mobile devices */
+    .bg-hero-gradient {
+        padding-bottom: 2rem !important;
+        min-height: auto !important;
+    }
+
+    /* Target the main hero section directly */
+    main.min-h-screen {
+        min-height: 80vh !important;
+        padding: 3rem 0 2rem 0 !important;
+    }
+
+    /* iOS Safari specific fixes */
+    @supports (-webkit-touch-callout: none) {
+        .bg-hero-gradient {
+            padding-bottom: 1rem !important;
+        }
+
+        main.min-h-screen {
+            min-height: 75vh !important;
+            padding: 2rem 0 1rem 0 !important;
+        }
+    }
+
     .hero-title {
         font-size: 36px;
         line-height: 140%;
