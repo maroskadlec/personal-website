@@ -1,0 +1,23 @@
+{
+    "name": "Marian Kadlec - Senior UX/UI Designer & Product Designer",
+    "short_name": "Marian Kadlec",
+    "description": "Senior digital designer for ambitious brands and digital products. 15+ years of experience in UX/UI design, design systems, and product redesigns.",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#20b2aa",
+    "background_color": "#e0f7fa",
+    "display": "standalone",
+    "start_url": "/",
+    "scope": "/",
+    "orientation": "portrait-primary"
+}
