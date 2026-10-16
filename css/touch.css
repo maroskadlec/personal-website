@@ -1,0 +1,79 @@
+/* ==========================================================================
+   TOUCH — how big the things you hit are, and what changes for a finger.
+   The look stays; what grows is the area you can hit.
+
+   Other files hold their own part of the same job:
+     tokens.css   no grey tap flash, no pull-to-refresh, no double-tap zoom
+     tray.css     the Desktop | Terminal switch gets taller on a finger
+     cli.css      the Terminal's touch rules (it loads later and would win)
+     everywhere   hover effects sit behind (hover: hover), so nothing sticks after a tap
+   pointer: coarse = a finger (phone, tablet). The narrow glass (a phone) is the
+   container query used throughout windows.css.
+   ========================================================================== */
+
+/* ---------- any pointer: a scroller keeps its bounce to itself ---------- */
+.win-scroll, .br-scroll, .sc-scroll { overscroll-behavior: contain; }
+
+/* ---------- any pointer: the little boxes of a window are easy to miss with a mouse too ---------- */
+.win-close::before, .win-zoom::before { content: ''; position: absolute; inset: -7px -8px; }    /* 13 px to see, 27 x 25 px to hit (about as tall as the title bar) */
+.grow::before { content: ''; position: absolute; inset: -4px -8px -8px -8px; }                /* the resize corner reaches past the window edge */
+
+/* ---------- a finger: phone or tablet ---------- */
+@media (pointer: coarse) {
+    :root { --mb-h: 34px; }
+
+    /* menu bar */
+    .mb-item { position: relative; padding: 0 11px; font-size: 18px; }
+    .mb-item::after { content: ''; position: absolute; inset: 0 0 -8px; }                    /* the hit area reaches below the bar */
+    .mb-logo { padding: 0 11px; }
+    .mb-logo svg { width: 16px; height: 20px; }
+    .mb-help { padding: 0 14px; }
+
+    /* pull-down menus: rows you can hit */
+    .menu-row { min-height: 40px; font-size: 18px; }
+
+    /* buttons, the Browser's toolbar and the Scrapbook's page buttons */
+    .btn { min-height: 40px; }
+    .br-bar, .sc-bar { padding: 6px 10px; gap: 8px; }
+    .br-btn { width: 40px; height: 36px; }
+    .br-btn svg { width: 20px; height: 20px; }
+    .br-addr { height: 36px; }
+
+    /* control panels and lists */
+    .chk, .rad { min-height: 36px; }
+    input.sld { height: 40px; }
+    .dl-row { padding: 13px 8px 14px; }
+    .row { height: 34px; }
+    .bm-list li { padding: 14px 14px; }
+}
+
+/* tablet: windows float, so their title bar and corner get bigger (on a phone they fill the screen: windows.css) */
+@media (pointer: coarse) {
+    @container screen (min-width: 561px) {
+        .win-title { height: 28px; }
+        .win.is-active .win-title::before { top: 8px; }
+        .win-close, .win-zoom { top: 7px; }
+        .win-close::before, .win-zoom::before { inset: -7px -16px; }                         /* 13 px to see, 45 x 27 px to hit (the whole bar high) */
+        .grow::before { inset: -6px -14px -14px -14px; }
+    }
+}
+
+/* a narrow glass (a phone, or a small browser window with a mouse): the clock gives way so the menu bar fits at 320 px */
+@container screen (max-width: 560px) {
+    .mb-clock { min-width: 0; font-size: 15px; }
+}
+
+/* phone: the whole glass is one window at a time, so controls can be generous */
+@media (pointer: coarse) {
+    @container screen (max-width: 560px) {
+        .mb-item { padding: 0 9px; font-size: 17px; }
+        .mb-logo { padding: 0 10px; }
+        .menubar > .mb-item { flex: 1 1 auto; justify-content: center; }                  /* the menu titles share the whole bar: no dead gaps between them */
+        .menu-row kbd { display: none; }                                                    /* keyboard hints mean nothing here */
+        .win-close::before { inset: -3px -10px; }                                           /* 24 px box, 44 x 30 px to hit (the bar is 32) */
+        .chk, .rad { min-height: 44px; }
+        input.sld { height: 44px; }
+        .row { height: 44px; }
+        .lv-head { height: 24px; }
+    }
+}

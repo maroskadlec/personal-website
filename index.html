@@ -1,241 +1,440 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" class="no-js">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>
+        /* The page starts as the plain text of the portfolio (class no-js, see css/plain.css) and becomes the machine
+           only where the machine can run: ES modules, container queries, inert and color-mix. If it then fails
+           to start, __mkFail() brings the text back. ?plain shows the text version on purpose. */
+        (function () {
+            var d = document.documentElement;
+            var capable = 'noModule' in HTMLScriptElement.prototype
+                && !!(window.CSS && CSS.supports && CSS.supports('container-type: inline-size') && CSS.supports('color: color-mix(in srgb, red, blue)'))
+                && 'inert' in HTMLElement.prototype;
+            var ok = capable && !/[?&]plain\b/.test(location.search);
+            window.__mkSupported = ok;
+            if (ok) { d.classList.remove('no-js'); d.classList.add('js'); }
+            else if (capable) d.classList.add('can-js');           // the text is shown on purpose: it offers the way back to the machine
+            var failed = false;
+            window.__mkFail = function () {
+                if (failed) return;
+                failed = true;
+                // one quiet second chance: a file that dropped on a bad connection is the usual reason (main.js clears the mark once the machine runs)
+                try { if (ok && !sessionStorage.getItem('mk10.retried')) { sessionStorage.setItem('mk10.retried', '1'); location.reload(); return; } } catch (e) { /* storage is blocked: no second chance */ }
+                d.classList.remove('js'); d.classList.add('no-js', 'failed');
+                var t = document.getElementById('seo'); if (t) { t.removeAttribute('aria-hidden'); t.inert = false; }
+            };
+            window.addEventListener('error', function (e) {
+                var t = e.target;
+                // a failed module file, or an error thrown from our own files (not from a script of someone else, which says nothing about the machine)
+                var ours = t === window && e.filename && e.filename.indexOf(location.origin) === 0;
+                if (ok && !window.__mkAlive && (ours || (t && t.tagName === 'SCRIPT' && t.type === 'module'))) window.__mkFail();
+            }, true);
+        })();
+    </script>
     <title>Marian Kadlec - Senior UX/UI Designer & Product Designer | Prague</title>
-    <meta name="description" content="Senior digital designer for ambitious brands and digital products. 15+ years of experience in UX/UI design, design systems, and product redesigns in Prague, Czech Republic.">
+    <meta name="description" content="Senior digital designer for ambitious brands and digital products. 15+ years of experience in UX/UI design, design systems and product redesigns in Prague, Czech Republic; works where design meets code and builds front-end with AI. This portfolio is a computer: use the Desktop or the Terminal.">
     <meta name="author" content="Marian Kadlec">
-    <meta name="keywords" content="UX designer, UI designer, product designer, design systems, Prague, Czech Republic, digital design, redesign, fintech, e-commerce">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://mariankadlec.com/">
+    <!-- the site lives at mariankadlec.cz (the CNAME of the repository); the .com address does not exist -->
+    <link rel="canonical" href="https://mariankadlec.cz/">
+    <meta name="theme-color" content="#050403">
 
-    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Marian Kadlec - Senior UX/UI Designer & Product Designer | Prague">
-    <meta property="og:description" content="Senior digital designer for ambitious brands and digital products. 15+ years of experience in UX/UI design, design systems, and product redesigns in Prague, Czech Republic.">
+    <meta property="og:description" content="Senior digital designer for ambitious brands and digital products. This portfolio is a computer.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mariankadlec.com/">
-    <meta property="og:site_name" content="Marian Kadlec - Senior Product Designer">
-    <meta property="og:image" content="https://mariankadlec.com/og-image.jpg">
+    <meta property="og:site_name" content="Marian Kadlec">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:url" content="https://mariankadlec.cz/">
+    <meta property="og:image" content="https://mariankadlec.cz/og-image.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:locale" content="en_US">
-    
-    <!-- Additional Language and Locale Meta Tags -->
-    <meta name="language" content="English">
-    <meta name="geo.region" content="CZ-10">
-    <meta name="geo.placename" content="Prague">
-    <meta name="geo.position" content="50.0755;14.4378">
-    <meta name="ICBM" content="50.0755, 14.4378">
-    <link rel="alternate" hreflang="en" href="https://mariankadlec.com/">
-
-    <!-- Twitter Card Meta Tags -->
+    <meta property="og:image:alt" content="Marian Kadlec, Senior UX/UI Designer and Product Designer. The teal pear of Marian OS and the line: This portfolio is a computer.">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@maroskadlec">
-    <meta name="twitter:creator" content="@maroskadlec">
     <meta name="twitter:title" content="Marian Kadlec - Senior UX/UI Designer & Product Designer | Prague">
-    <meta name="twitter:description" content="Senior digital designer for ambitious brands and digital products. 15+ years of experience in UX/UI design, design systems, and product redesigns.">
-    <meta name="twitter:image" content="https://mariankadlec.com/twitter-image.jpg">
+    <meta name="twitter:description" content="Senior digital designer for ambitious brands and digital products. This portfolio is a computer.">
+    <meta name="twitter:image" content="https://mariankadlec.cz/og-image.jpg">
 
-    <!-- Theme and Brand Colors -->
-    <meta name="theme-color" content="#20b2aa">
-    <meta name="msapplication-TileColor" content="#20b2aa">
+    <!-- the pear (made by _tools/icons.mjs); "Add to Home Screen" opens the machine as an app -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon-180.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Marian OS">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
 
-    <!-- Favicon and Icons -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
-    <meta name="msapplication-config" content="/browserconfig.xml">
+    <!-- the fonts are served from fonts/ (css/fonts.css); the two the first screen needs are fetched at once -->
+    <link rel="preload" href="fonts/jersey-10-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="fonts/atkinson-hyperlegible-next-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="css/fonts.css?v=954d7c42ae">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;300;400;500;600;700;800;900&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    
-    <!-- Structured Data (JSON-LD) -->
+    <link rel="stylesheet" href="css/tokens.css?v=93e1e5ace0">
+    <link rel="stylesheet" href="css/crt.css?v=9544fcfafc">
+    <link rel="stylesheet" href="css/tray.css?v=391e57ae88">
+    <link rel="stylesheet" href="css/system7.css?v=4e3fb41b46">
+    <link rel="stylesheet" href="css/windows.css?v=5ad138c096">
+    <link rel="stylesheet" href="css/apps.css?v=3c31d61cf5">
+    <link rel="stylesheet" href="css/browser.css?v=b860bcb573">
+    <link rel="stylesheet" href="css/era2008.css?v=a7dd3933b4">
+    <link rel="stylesheet" href="css/plain.css?v=6cc0da670c">
+    <link rel="stylesheet" href="css/touch.css?v=f345c6e89a">
+    <link rel="stylesheet" href="css/a11y.css?v=a20a73910c">
+    <!-- css/cli.css is fetched with the Terminal (js/main.js) -->
+
+    <!-- importmap:start (made by _tools/build.mjs, do not edit by hand) -->
+    <script type="importmap">
+    {
+        "imports": {
+            "./js/boot.js": "./js/boot.js?v=78a4baf305",
+            "./js/bootmenu.js": "./js/bootmenu.js?v=595441e76e",
+            "./js/content/ai.js": "./js/content/ai.js?v=ffbafa3193",
+            "./js/content/career.js": "./js/content/career.js?v=2205d54da6",
+            "./js/content/commands.js": "./js/content/commands.js?v=87e1cd05f6",
+            "./js/content/contact.js": "./js/content/contact.js?v=1a187bd3cc",
+            "./js/content/desktop.js": "./js/content/desktop.js?v=b01ff23449",
+            "./js/content/eggs.js": "./js/content/eggs.js?v=5274f9eb16",
+            "./js/content/index.js": "./js/content/index.js?v=5844ed6a5f",
+            "./js/content/links.js": "./js/content/links.js?v=4ec9687ca8",
+            "./js/content/profile.js": "./js/content/profile.js?v=5a7bcb2239",
+            "./js/content/services.js": "./js/content/services.js?v=f616a9bc77",
+            "./js/content/skills.js": "./js/content/skills.js?v=0b6d5f756b",
+            "./js/content/work.js": "./js/content/work.js?v=a060e4df54",
+            "./js/core/assets.js": "./js/core/assets.js?v=5ba276be9f",
+            "./js/core/balloon.js": "./js/core/balloon.js?v=2c810d4260",
+            "./js/core/coach.js": "./js/core/coach.js?v=5037b73a62",
+            "./js/core/crash.js": "./js/core/crash.js?v=0755024d00",
+            "./js/core/konami.js": "./js/core/konami.js?v=6910bf3319",
+            "./js/core/menus.js": "./js/core/menus.js?v=791246b472",
+            "./js/core/modes.js": "./js/core/modes.js?v=28d7322c36",
+            "./js/core/screen.js": "./js/core/screen.js?v=5c8138edf7",
+            "./js/core/settings.js": "./js/core/settings.js?v=4c5018cf13",
+            "./js/core/sound.js": "./js/core/sound.js?v=8acb965572",
+            "./js/core/store.js": "./js/core/store.js?v=3ca0dbf3ca",
+            "./js/core/tray.js": "./js/core/tray.js?v=8b4f53a582",
+            "./js/core/util.js": "./js/core/util.js?v=9f0f6c70b6",
+            "./js/gfx/dither.js": "./js/gfx/dither.js?v=4c084ee195",
+            "./js/gfx/icons.js": "./js/gfx/icons.js?v=1216522bcf",
+            "./js/main.js": "./js/main.js?v=9366d5e354",
+            "./js/modes/cli/cli.js": "./js/modes/cli/cli.js?v=9e3191e393",
+            "./js/modes/cli/dotgrid.js": "./js/modes/cli/dotgrid.js?v=781d7f29c1",
+            "./js/modes/cli/files.js": "./js/modes/cli/files.js?v=293a6deda9",
+            "./js/modes/cli/fmt.js": "./js/modes/cli/fmt.js?v=5b683f78b5",
+            "./js/modes/cli/humor.js": "./js/modes/cli/humor.js?v=fa8e686b47",
+            "./js/modes/cli/shell.js": "./js/modes/cli/shell.js?v=d7ac058bfa",
+            "./js/modes/os/apps/about.js": "./js/modes/os/apps/about.js?v=36d93c870c",
+            "./js/modes/os/apps/browser.js": "./js/modes/os/apps/browser.js?v=dfb1220d27",
+            "./js/modes/os/apps/controls.js": "./js/modes/os/apps/controls.js?v=e83fc775bf",
+            "./js/modes/os/apps/credits.js": "./js/modes/os/apps/credits.js?v=905525730c",
+            "./js/modes/os/apps/doc.js": "./js/modes/os/apps/doc.js?v=a3f1a997a9",
+            "./js/modes/os/apps/folder.js": "./js/modes/os/apps/folder.js?v=d8b2f10f85",
+            "./js/modes/os/apps/info.js": "./js/modes/os/apps/info.js?v=2064045e6d",
+            "./js/modes/os/apps/project.js": "./js/modes/os/apps/project.js?v=6fea4f38bd",
+            "./js/modes/os/apps/puzzle.js": "./js/modes/os/apps/puzzle.js?v=28000e087e",
+            "./js/modes/os/apps/scrapbook.js": "./js/modes/os/apps/scrapbook.js?v=c362e23b44",
+            "./js/modes/os/apps/web08.js": "./js/modes/os/apps/web08.js?v=86ed793280",
+            "./js/modes/os/bridge.js": "./js/modes/os/bridge.js?v=3e08180106",
+            "./js/modes/os/dialog.js": "./js/modes/os/dialog.js?v=2c9a88c7a5",
+            "./js/modes/os/dog.js": "./js/modes/os/dog.js?v=421fb8ae62",
+            "./js/modes/os/fs.js": "./js/modes/os/fs.js?v=c6b6efff1e",
+            "./js/modes/os/iconview.js": "./js/modes/os/iconview.js?v=21fb56ed01",
+            "./js/modes/os/memory.js": "./js/modes/os/memory.js?v=3de69bbad2",
+            "./js/modes/os/os.js": "./js/modes/os/os.js?v=c0dd5840c2",
+            "./js/modes/os/saver.js": "./js/modes/os/saver.js?v=97c827f28e",
+            "./js/modes/os/scroll.js": "./js/modes/os/scroll.js?v=4c00514409",
+            "./js/modes/os/wm.js": "./js/modes/os/wm.js?v=dc87db424c",
+            "./js/modes/os/zoomrects.js": "./js/modes/os/zoomrects.js?v=ee840331d9"
+        }
+    }
+    </script>
+    <!-- importmap:end -->
+
+    <!-- modulepreload:start (made by _tools/build.mjs, do not edit by hand) -->
+    <script>
+        /* the files the machine needs at start, fetched at once (not for the text version, which never runs them, nor where import maps are missing) */
+        if (window.__mkSupported && window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap')) {
+            ['js/main.js?v=9366d5e354', 'js/core/sound.js?v=8acb965572', 'js/core/modes.js?v=28d7322c36', 'js/core/assets.js?v=5ba276be9f', 'js/core/screen.js?v=5c8138edf7', 'js/core/crash.js?v=0755024d00', 'js/core/util.js?v=9f0f6c70b6', 'js/boot.js?v=78a4baf305', 'js/bootmenu.js?v=595441e76e', 'js/modes/os/os.js?v=c0dd5840c2', 'js/modes/os/bridge.js?v=3e08180106', 'js/content/eggs.js?v=5274f9eb16', 'js/core/balloon.js?v=2c810d4260', 'js/gfx/dither.js?v=4c084ee195', 'js/content/index.js?v=5844ed6a5f', 'js/core/settings.js?v=4c5018cf13', 'js/gfx/icons.js?v=1216522bcf', 'js/core/tray.js?v=8b4f53a582', 'js/core/menus.js?v=791246b472', 'js/core/coach.js?v=5037b73a62', 'js/core/konami.js?v=6910bf3319', 'js/modes/os/fs.js?v=c6b6efff1e', 'js/core/store.js?v=3ca0dbf3ca', 'js/modes/os/memory.js?v=3de69bbad2', 'js/modes/os/wm.js?v=dc87db424c', 'js/modes/os/iconview.js?v=21fb56ed01', 'js/modes/os/dialog.js?v=2c9a88c7a5', 'js/modes/os/apps/doc.js?v=a3f1a997a9', 'js/modes/os/apps/folder.js?v=d8b2f10f85', 'js/modes/os/apps/about.js?v=36d93c870c', 'js/modes/os/apps/info.js?v=2064045e6d', 'js/modes/os/apps/browser.js?v=dfb1220d27', 'js/modes/os/apps/project.js?v=6fea4f38bd', 'js/modes/os/apps/scrapbook.js?v=c362e23b44', 'js/modes/os/apps/puzzle.js?v=28000e087e', 'js/modes/os/dog.js?v=421fb8ae62', 'js/modes/os/saver.js?v=97c827f28e', 'js/modes/os/apps/controls.js?v=e83fc775bf', 'js/content/profile.js?v=5a7bcb2239', 'js/content/skills.js?v=0b6d5f756b', 'js/content/career.js?v=2205d54da6', 'js/content/ai.js?v=ffbafa3193', 'js/content/links.js?v=4ec9687ca8', 'js/content/work.js?v=a060e4df54', 'js/content/services.js?v=f616a9bc77', 'js/content/contact.js?v=1a187bd3cc', 'js/content/commands.js?v=87e1cd05f6', 'js/content/desktop.js?v=b01ff23449', 'js/modes/os/scroll.js?v=4c00514409', 'js/modes/os/zoomrects.js?v=ee840331d9', 'js/modes/os/apps/credits.js?v=905525730c', 'js/modes/os/apps/web08.js?v=86ed793280'].forEach(function (h) {
+                var l = document.createElement('link');
+                l.rel = 'modulepreload';
+                l.href = h;
+                document.head.appendChild(l);
+            });
+        }
+    </script>
+    <!-- modulepreload:end -->
+
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "Person",
         "name": "Marian Kadlec",
         "jobTitle": "Senior UX/UI Designer & Product Designer",
-        "description": "Senior digital designer for ambitious brands and digital products. 15+ years of experience in UX/UI design, design systems, and product redesigns.",
-        "url": "https://mariankadlec.com",
-        "image": "https://mariankadlec.com/marian-kadlec-profile-image.webp",
-        "email": "marian.kadlec@icloud.com",
-        "telephone": "+420",
-        "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Prague",
-            "addressRegion": "Prague",
-            "addressCountry": "CZ"
-        },
-        "worksFor": [
-            {
-                "@type": "Organization",
-                "name": "Generaliceska.cz",
-                "url": "https://generaliceska.cz",
-                "startDate": "2025"
-            },
-            {
-                "@type": "Organization",
-                "name": "Jobs.cz",
-                "url": "https://jobs.cz",
-                "startDate": "2020",
-                "endDate": "2025"
-            },
-            {
-                "@type": "Organization",
-                "name": "Atmoskop.cz",
-                "url": "https://atmoskop.cz",
-                "startDate": "2023",
-                "endDate": "2025"
-            }
-        ],
+        "description": "Senior digital designer for ambitious brands and digital products. 15+ years of experience in UX/UI design, design systems, and product redesigns; works where design meets code and builds front-end with AI.",
         "knowsAbout": [
-            "UX Design",
+            "UX Research",
             "UI Design",
-            "Product Design",
-            "Design Systems",
-            "User Experience",
-            "User Interface",
             "Prototyping",
-            "User Research",
+            "Design Systems",
+            "User Testing",
             "Information Architecture",
             "Interaction Design",
             "Visual Design",
-            "Figma",
-            "Design Thinking",
-            "Agile Methodology",
-            "Frontend Development",
-            "AI-generated design"
+            "Vibe Coding",
+            "AI generated design and assets"
         ],
+        "url": "https://mariankadlec.cz/",
+        "image": "https://mariankadlec.cz/img/marian-kadlec-profile-image.webp",
+        "email": "marian.kadlec@icloud.com",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Prague",
+            "addressCountry": "CZ"
+        },
         "sameAs": [
-            "https://www.linkedin.com/in/mariankadlec",
+            "https://www.linkedin.com/in/marian-kadlec/",
+            "https://github.com/maroskadlec",
             "https://dribbble.com/mariankadlec",
-            "https://medium.com/@mariankadlec",
-            "https://twitter.com/maroskadlec"
-        ],
-        "alumniOf": {
-            "@type": "EducationalOrganization",
-            "name": "Design Education"
-        },
-        "hasOccupation": {
-            "@type": "Occupation",
-            "name": "UX/UI Designer",
-            "occupationLocation": {
-                "@type": "City",
-                "name": "Prague",
-                "containedInPlace": {
-                    "@type": "Country",
-                    "name": "Czech Republic"
-                }
-            },
-            "skills": [
-                "User Experience Design",
-                "User Interface Design",
-                "Product Design",
-                "Design Systems",
-                "Prototyping",
-                "User Research",
-                "Visual Design"
-            ]
-        },
-        "award": "15+ years of professional design experience",
-        "birthPlace": {
-            "@type": "Place",
-            "name": "Czech Republic"
-        }
+            "https://medium.com/@mariankadlec"
+        ]
     }
     </script>
-
-    <!-- Microsoft Clarity Analytics -->
-    <script type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "rucbrqyu1e");
-    </script>
-
 </head>
-<body class="body-base">
-    <section class="profile-container">
-        <div class="content-wrapper">
-            <!-- Profile Section -->
-            <div class="profile-section">
-                <div class="profile-photo">
-                    <img src="marian-kadlec-profile-image.webp" alt="Marian Kadlec" />
-                </div>
-                <h1 class="profile-name">Marian Kadlec</h1>
-                <h2 class="profile-title">Senior digital designer for ambitious brands and digital products.</h2>
+<body class="is-off">
+    <script>
+        /* dev only: ?raf=timer drives requestAnimationFrame with timers, so animations also run while the tab is hidden */
+        /* dev only: ?net=fast pretends to be on a fast connection (an embedded browser may report 2G), ?net=slow on a slow one (3G, data saver on) */
+        if (/[?&]net=(fast|slow)\b/.test(location.search)) {
+            var slow = /[?&]net=slow\b/.test(location.search);
+            try { Object.defineProperty(navigator, 'connection', { value: { effectiveType: slow ? '3g' : '4g', saveData: slow }, configurable: true }); } catch (e) { /* read-only here */ }
+        }
+        if (/[?&]raf=timer\b/.test(location.search)) {
+            window.requestAnimationFrame = function (cb) { return setTimeout(function () { cb(performance.now()); }, 16); };
+            window.cancelAnimationFrame = function (id) { clearTimeout(id); };
+        }
+    </script>
+    <!-- the whole viewport is one CRT screen -->
+    <main class="screen" id="screen">
+        <div class="stage" id="stage">
+            <div class="modes" id="modes">
+                <div class="mode mode-os os" id="mode-os" hidden></div>
+                <div class="mode mode-cli" id="mode-cli" hidden></div>
             </div>
-            
-            <!-- First Row of Skill Icons -->
-            <div class="skill-icons">
-                <img src="designsystemsexpert.webp" alt="Design Systems Expert" />
-                <img src="performance-optimization.webp" alt="Results-Driven Approach" />
-                <img src="portfolio.webp" alt="15 years of design experience" />
-                <img src="rapid-prototyping.webp" alt="UX/UI Design services" />
-                <img src="testing&iteration.webp" alt="Testing & Iteration" />
-                <img src="component-systems.webp" alt="Design Systems development" />
-            </div>
-            
-            <!-- Company Tags and Text -->
-            <div class="company-section">
-                <div class="company-tags">
-                    <span class="company-tag">Generali Česká pojišťovna</span>
-                    <span class="company-tag">Slevomat</span>
-                    <span class="company-tag">Atmoskop</span>
-                    <span class="company-tag">Jobs.cz</span>
-                    <span class="company-tag">Storyous</span>
-                    <span class="company-tag">Syca.app</span>
-                    <span class="company-tag">Sagaflow.io</span>
-                </div>
-                <p class="company-text">With 15+ years of experience in digital design, I bring a unique combination of strategic thinking, technical expertise, and creative vision to every project.</p>
-                <p class="company-text">Funnily enough, I often ended up working on redesigns of products and brands.</p>
-            </div>
-            
-            <!-- Second Row of Skill Icons -->
-            <div class="skill-icons">
-                <img src="ai-generated-assets.webp" alt="AI-powered design services" />
-                <img src="handoff&support.webp" alt="Handoff & Support" />
-                <img src="high-fidelity-prototypes.webp" alt="Design of user interfaces" />
-                <img src="redesign-designer.webp" alt="Product redesign specialist" />
-                <img src="design-tokens.webp" alt="Design tokens, variables and styles" />
-                <img src="consulting.webp" alt="Senior digital designer" />
-            </div>
-            
-            <!-- Buttons -->
-            <div class="buttons-section">
-                <a href="https://www.linkedin.com/in/marian-kadlec/" class="btn-social" target="_blank" rel="noopener noreferrer">
-                    LinkedIn profile
-                </a>
-                <a href="https://dribbble.com/mariankadlec" class="btn-social" target="_blank" rel="noopener noreferrer">
-                    Dribbble portfolio
-                </a>
-                <a href="https://elements.envato.com/user/maroskadlec/graphic-templates" class="btn-social" target="_blank" rel="noopener noreferrer">
-                    Design Marketplace
-                </a>
-            </div>
-            
-            <!-- Footer -->
-            <footer class="footer-new">
-                <p class="footer-text footer-desktop">© 2025 Marian Kadlec - made with vibe coding.</p>
-                <div class="footer-mobile">
-                    <p class="footer-text">© 2025 Marian Kadlec</p>
-                    <p class="footer-text">Made with vibe coding</p>
-                </div>
-            </footer>
+            <div class="boot-root" id="bootRoot"></div>
         </div>
-    </section>
 
+        <div class="switch-overlay" id="switchOverlay" aria-hidden="true"><span id="switchLine"></span></div>
 
+        <!-- the system error (core/crash.js) sits above both modes and below the glass -->
+        <div class="crash" id="crash" hidden></div>
 
+        <div class="glass-fx" aria-hidden="true"><i class="fx-scan"></i><i class="fx-vig"></i></div>
+        <i class="screen-dim" id="screenDim" aria-hidden="true"></i>
+        <i class="crt-line" id="crtLine" aria-hidden="true"></i>
+
+        <!-- power-on gate: also the user gesture that unlocks sound -->
+        <div class="gate" id="gate">
+            <button class="gate-power" id="gatePower" type="button" aria-label="Power on Marian OS">
+                <svg class="gate-pear" viewBox="0 0 64 78" width="64" height="78" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="gpB" x1="0.15" y1="0" x2="0.85" y2="1"><stop offset="0" stop-color="#7cf0e2"/><stop offset="0.5" stop-color="#27bdb2"/><stop offset="1" stop-color="#0f7770"/></linearGradient>
+                        <linearGradient id="gpL" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#0f7770"/><stop offset="1" stop-color="#40e0d0"/></linearGradient>
+                    </defs>
+                    <path d="M32 14C26 14 22.5 19 22.5 25c0 6-4 9.5-8 16C9 50 8.5 62 17 69c5 4.5 11 5.5 15 5.5s10-1 15-5.5c8.5-7 8-19 2.5-28-4-6.5-8-10-8-16 0-6-3.5-11-9.5-11z" fill="url(#gpB)"/>
+                    <path d="M32 14C32 9 34 5 38 2" fill="none" stroke="#5b4326" stroke-width="3.2" stroke-linecap="round"/>
+                    <path d="M35.5 9C40 1 51 1.5 55 6c-4 8-14 9.5-19.5 3z" fill="url(#gpL)"/>
+                    <ellipse cx="24.5" cy="52" rx="3.3" ry="10" fill="#fff" opacity=".3" transform="rotate(12 24.5 52)"/>
+                </svg>
+                <span class="gate-text">Click to power on</span>
+            </button>
+            <p class="gate-name">Marian Kadlec · Senior digital designer · Prague</p>
+            <div class="gate-options">
+                <button class="gate-sound" id="gateSound" type="button" aria-pressed="true">Sound: on</button>
+                <a class="gate-plain" id="gatePlain" href="?plain">Plain text version</a>
+            </div>
+        </div>
+
+        <div class="sr-only" id="live" role="status" aria-live="polite"></div>
+    </main>
+
+    <!-- The portfolio as plain text. With the machine running it is hidden from the eye and from screen readers (they use the
+         Desktop or the Terminal) and stays in the page for search engines; without JavaScript, in a browser too old for the
+         machine, or if it fails to start, it is the page (css/plain.css). -->
+    <!-- seo:start (made by _tools/seo.mjs from js/content/*, do not edit by hand) -->
+    <article id="seo" role="main">
+        <div class="plain-only">
+            <p>This is the plain text version of the portfolio. The interactive one is a computer, with a Desktop and a Terminal. It needs JavaScript and a recent browser (the last versions of Chrome, Edge, Firefox or Safari; on iPhone and iPad iOS 16.4 or newer).</p>
+            <p class="plain-back"><a href="./">Open the interactive version</a></p>
+        </div>
+        <header>
+            <img src="img/marian-kadlec-profile-image.webp" alt="Portrait of Marian Kadlec" width="444" height="560">
+            <h1>Marian Kadlec</h1>
+            <p class="lead">Senior digital designer for ambitious brands and digital products.</p>
+            <p>Years at the seam between design and code. Now AI lets me cross it myself.</p>
+            <p class="meta">Prague, CZ · 15+ years in digital design · <a href="mailto:marian.kadlec@icloud.com">marian.kadlec@icloud.com</a></p>
+        </header>
+        <section>
+            <h2>About</h2>
+            <p>With 15+ years of experience in digital design, I bring a unique combination of strategic thinking, technical expertise, and creative vision to every project.</p>
+            <p>Design systems, design tokens, component libraries, close work with front-end teams: for years my work has sat exactly on the line between design and code.</p>
+            <p>I'm an AI enthusiast, and it has changed what a designer can do. With AI as a pair programmer I'm back in the front-end: building components, layouts and working prototypes in real code, and delivering straight into a project's codebase instead of only into Figma.</p>
+            <p>I work alongside engineers, not instead of them: what I hand over is code they can review, not a spec they have to interpret.</p>
+            <p>Funnily enough, I often ended up working on redesigns of products and brands.</p>
+        </section>
+        <section>
+            <h2>Skills</h2>
+            <h3>Design</h3>
+            <ul>
+                <li>UX and UI design, prototyping and testing, aimed at business results</li>
+                <li>Product redesigns of portals, platforms and brands</li>
+                <li>Design systems: components, tokens, variables and styles</li>
+                <li>Handoff and support, now also straight into code</li>
+            </ul>
+            <h3>Build</h3>
+            <ul>
+                <li>Front-end with AI as pair programmer: <strong>JavaScript, TypeScript, React</strong>, HTML and CSS</li>
+                <li>Design to code: working components instead of hand-off files</li>
+                <li>Delivery into the codebase: git, pull requests, code review</li>
+                <li>Vibe coding for fast, working prototypes</li>
+            </ul>
+            <h3>AI</h3>
+            <ul>
+                <li>AI in every step: research, UX writing, prototyping, QA</li>
+                <li>Trying, comparing and swapping AI tools as they appear</li>
+            </ul>
+        </section>
+        <section>
+            <h2>How AI fits in</h2>
+            <p>AI is not one step in my process, it runs through all of them. The tools change every few weeks, so I describe the workflow by what I do, not by what I use.</p>
+            <ol>
+                <li><strong>Discover:</strong> AI reads and clusters the research, I decide <strong>what matters</strong></li>
+                <li><strong>Define:</strong> UX copy, specs and edge cases: AI drafts, <strong>I edit</strong></li>
+                <li><strong>Design:</strong> states and variants explored with AI, <strong>curated by hand</strong></li>
+                <li><strong>Build:</strong> <strong>real components in real code</strong>, AI as pair programmer</li>
+                <li><strong>Verify:</strong> AI hunts edge cases and accessibility gaps, I check <strong>in the browser</strong></li>
+                <li><strong>Ship:</strong> <strong>pull requests into the project's codebase</strong>, AI-assisted, reviewed like any other code</li>
+            </ol>
+            <p>Delivery: straight into the project's codebase, not only into Figma. Result: idea → testable prototype, ~3× faster.</p>
+        </section>
+        <section>
+            <h2>My design journey and professional background</h2>
+            <p>Over the course of my career, I've had the chance to work as a visual, UI, or UX designer on a wide range of projects across different industries: digital marketing, e-commerce, foodies, insurance, fintech, startups, job markets, low-code platforms, information systems, development.</p>
+            <p>I've worked with both well-established companies and fast-growing startups, in both async and sync setups. I was usually part of agile teams, responsible for the entire design process and later also for getting it into production.</p>
+            <p>I have solid experience across the whole design process – from early idea phases, through research, user studies, testing, and iterations, all the way to final prototypes and handoff materials for the dev team. That includes everything from precisely defined styles and components to detailed specs for features and behaviors of individual elements.</p>
+            <p>I've worked my way up to larger-scale projects, where monthly traffic reaches into the millions and annual turnover is in the billions. This journey gave me the most experience when it comes to scalability and sustainability of design, including a deeper understanding of design systems and how to implement them into products.</p>
+            <p>Funnily enough, I often ended up working on redesigns of products and brands.</p>
+            <h3>Skills</h3>
+            <ul>
+                <li>UX Research</li>
+                <li>UI Design</li>
+                <li>Prototyping</li>
+                <li>Design Systems</li>
+                <li>User Testing</li>
+                <li>Information Architecture</li>
+                <li>Interaction Design</li>
+                <li>Visual Design</li>
+                <li>Vibe Coding</li>
+                <li>AI generated design and assets</li>
+            </ul>
+            <h3>Generali: Senior UX / UI Designer, 2025 – now</h3>
+            <p>As a senior UI/UX designer in the Digital Sales team, I am contributing to the redesign of the key web channel Generaliceska.cz. My work includes designing and evolving the design system in Figma, creating responsive templates (product, service, category), and collaborating on user journeys and content architecture. It also involves close communication with the frontend team, with a strong focus on accessibility and consistency across online channels.</p>
+            <p>The project aims to strengthen the customer experience, business performance, and digital communication of one of the strongest brands on the Czech market.</p>
+            <h3>Slevomat: Product Designer, 2025 – now</h3>
+            <p>As a product designer at Slevomat, a brand known across the whole of Czechia and Slovakia, I help improve how users discover and choose experiences on the platform. My work centers on that journey, on making it clearer and easier to find the right experience.</p>
+            <p>Together with the team, we are building the design system from the ground up, setting up the design process and fine-tuning the design principles that guide our decisions.</p>
+            <p>We also use AI tools to look for ways to design smarter and to make the work more fun.</p>
+            <h3>Jobs.cz: Senior UX Designer, 2020 – 2025</h3>
+            <p>I was a key member in the redesign and repositioning of the Jobs.cz brand and its web portal. As a senior UX and UI designer, I was responsible for the design direction of the project and other designers. My role was to orchestrate stakeholders, external brand agencies, project teams, and the design system team at the design level. I went through the most complex role in my professional career.</p>
+            <p>A very significant project was also the Spirit design system, which was created practically alongside the Jobs brand redesign. I dealt not only with the design system as such, but also with its position as a product within the company, because its role was ultimately to serve all products from the Alma family across Europe. I was part of the design vs code automation topic and the sustainability and scalability of the design system.</p>
+            <h3>Atmoskop: Product Designer, 2023 – 2025</h3>
+            <p>After joining Atmoskop, I became involved in an ongoing redesign process, where I took on the role of product designer in an agile, synchronous team. I was able to apply my experience from the extensive redesign process of the Jobs.cz job portal, of which I was a key part. I focused on designing and testing optimal solutions that meet business goals while considering user needs.</p>
+            <h3>Team Assistant / Syca: UX &amp; UI Designer, 2023 – 2025</h3>
+            <p>As part of an agile product team working in asynchronous mode, I participated in the redesign of a cloud-based low-code solution called Team Assistant. The solution enables endless possibilities for process digitalization. My main task was to rework the main part of the web application, and gradually we focused on other functional units, including the mobile application.</p>
+            <p>Along with the redesign, a comprehensive design system was created that enables easy and sustainable scaling. It contains not only an extensive library of components and design tokens, but also various color skins.</p>
+            <p>I also participated in the redesign of the brand's visual identity and preparation of the product for expansion into foreign markets under a new brand.</p>
+            <h3>Storyous: UX &amp; UI Designer, 2018 – 2021</h3>
+            <p>In an agile product team, I developed as a UI and UX designer a complete ecosystem of applications and payment systems for retail customers of Storyous (now Teya.com).</p>
+            <p>I encountered a number of situations arising from the previous absence of a designer in the team and an established design process. Therefore, I gradually introduced a comprehensive design process, which among other things included occasional user interviews.</p>
+            <p>At the same time, I developed a UI component library and design tokens, which facilitated project scaling and also helped with the planned redesign of the web application.</p>
+        </section>
+        <section>
+            <h2>Services</h2>
+            <p>Comprehensive design services for ambitious projects and premium digital experiences.</p>
+            <h3>UX/UI Design</h3>
+            <p>Comprehensive user experience design from research to final interface, creating intuitive and engaging digital products.</p>
+            <h3>Design Systems</h3>
+            <p>Scalable design systems that ensure consistency and efficiency across all your digital products.</p>
+            <h3>Consulting</h3>
+            <p>Strategic design consulting to optimize processes and achieve business goals.</p>
+            <h3>Redesign of products</h3>
+            <p>Complete product redesigns that transform existing digital experiences into modern solutions.</p>
+            <h3>AI generated design and assets</h3>
+            <p>Leverage AI tools for rapid prototyping and asset creation.</p>
+        </section>
+        <section>
+            <h2>My design process</h2>
+            <p>A proven, collaborative approach that transforms your vision into exceptional digital experiences through research, design, and iterative refinement.</p>
+            <h3>Discovery &amp; Research</h3>
+            <p>Deep dive into your business goals, user needs, and market landscape. I conduct user interviews, competitive analysis, and stakeholder workshops to establish a solid foundation.</p>
+            <h3>Design &amp; Prototyping</h3>
+            <p>Create wireframes, user flows, and high-fidelity prototypes. Develop design systems and component libraries that ensure consistency and scalability across your product.</p>
+            <h3>Testing &amp; Iteration</h3>
+            <p>Validate designs through user testing and stakeholder feedback. Iterate based on real user behavior and business metrics to optimize the user experience.</p>
+            <h3>Handoff &amp; Support</h3>
+            <p>Deliver comprehensive design specifications, assets, and documentation. Collaborate closely with development teams to ensure pixel-perfect implementation.</p>
+        </section>
+        <section>
+            <h2>Why choose me for your next project</h2>
+            <p>With 15+ years of experience in digital design, I bring a unique combination of strategic thinking, technical expertise, and creative vision to every project.</p>
+            <h3>15+ Years of Proven Experience</h3>
+            <p>Extensive experience working with both established companies and fast-growing startups across fintech, e-commerce, and B2B products with millions of users.</p>
+            <h3>Design Systems Expert</h3>
+            <p>Specialized in creating scalable design systems that ensure consistency and efficiency across all digital products, saving months of development time.</p>
+            <h3>Results-Driven Approach</h3>
+            <p>Focus on delivering measurable business results through user-centered design, with proven track record of improving conversion rates and user engagement.</p>
+            <h3>Agile Team Collaboration</h3>
+            <p>Experienced in both synchronous and asynchronous agile environments, seamlessly integrating with development teams and stakeholders.</p>
+            <h3>End-to-End Process</h3>
+            <p>Complete design process coverage from initial research and ideation through to final prototypes and detailed handoff materials for development teams.</p>
+            <h3>Large-Scale Expertise</h3>
+            <p>Proven experience with high-traffic platforms (millions of monthly users) and high-revenue products (billions in annual turnover).</p>
+            <h3>AI-Enhanced Design Workflow</h3>
+            <p>Early adopter of AI design tools and methodologies, combining human creativity with AI efficiency to deliver faster iterations and innovative solutions.</p>
+            <h3>Business Impact Focus</h3>
+            <p>Design decisions backed by business metrics and user data. Proven track record of increasing conversion rates, reducing bounce rates, and improving key performance indicators that matter to your bottom line.</p>
+        </section>
+        <section>
+            <h2>Contact</h2>
+            <p>Availability: open for product redesigns · design systems · AI-assisted front-end · consulting. Response time: &lt;24h.</p>
+            <ul>
+                <li><a href="mailto:marian.kadlec@icloud.com">marian.kadlec@icloud.com</a></li>
+                <li><a href="https://www.linkedin.com/in/marian-kadlec/">LinkedIn profile</a></li>
+                <li><a href="https://github.com/maroskadlec">GitHub profile</a></li>
+                <li><a href="https://dribbble.com/mariankadlec">Dribbble portfolio</a></li>
+                <li><a href="https://elements.envato.com/user/maroskadlec/graphic-templates">Design Marketplace</a></li>
+            </ul>
+        </section>
+    </article>
+    <!-- seo:end -->
+
+    <script src="vendor/gsap.min.js?v=92bb9a9647"></script>
+    <script>
+        /* dev only: ?nogsap behaves as if the animation library had not loaded */
+        if (/[?&]nogsap\b/.test(location.search)) delete window.gsap;
+    </script>
+    <script>
+        /* the machine's code is fetched only where the machine can run; screen readers and the Tab key use the machine then, not the text */
+        (function () {
+            if (!window.__mkSupported) return;
+            var text = document.getElementById('seo');
+            text.setAttribute('aria-hidden', 'true');
+            text.inert = true;
+            var main = document.createElement('script');
+            main.type = 'module';
+            main.src = 'js/main.js?v=9366d5e354';
+            main.onerror = window.__mkFail;
+            document.body.appendChild(main);
+        })();
+    </script>
 </body>
 </html>

@@ -1,0 +1,62 @@
+/* ==========================================================================
+   A11Y — what the Desktop does when the visitor asks the system for more contrast
+   (prefers-contrast: more) or the system forces its own colours (forced-colors: active,
+   Windows High Contrast and the contrast themes).
+
+   In forced-colors mode the browser repaints text, backgrounds and borders with the
+   system colours and drops shadows, gradients and glow. What is left to do is keep
+   the things that only colour or a shadow showed: what is selected, which window is in
+   front, what is checked, where the focus is. The Terminal has its own block at the end
+   of cli.css. The plain text page needs nothing: it is only text.
+
+   Written to the specification and checked in a normal browser by trying the same rules
+   without the media query (see docs/M6-kroky.md); it has not run in a real Windows High
+   Contrast session. In Chrome: DevTools > Rendering > "Emulate CSS media feature
+   forced-colors" (and prefers-contrast) shows it.
+   ========================================================================== */
+
+/* more contrast: the glass (scanlines, vignette, dimming layer) only lowers it */
+@media (forced-colors: active), (prefers-contrast: more) {
+    .glass-fx { display: none; }
+}
+
+@media (forced-colors: active) {
+    /* what is selected, hovered or open: the system's own selection colours */
+    .icon.is-selected .icon-label,
+    .row.is-selected,
+    .mb-item:hover, .mb-item.is-open, .mb-item:focus-visible,
+    .menu-row:not([disabled]):hover, .menu-row:not([disabled]):focus-visible, .menu-row.is-flash,
+    .dl-row:hover, .dl-row:focus-visible,
+    .tray-tab[aria-selected="true"],
+    .bm-list li[aria-selected="true"],
+    .btn:active {
+        forced-color-adjust: none;
+        background: Highlight;
+        color: HighlightText;
+    }
+    .row.is-selected .icon-label { background: transparent; color: HighlightText; }
+    .menu-row.is-flash.is-off { background: Canvas; color: CanvasText; }
+    .icon.is-selected .icon-art, .row.is-selected .row-icon svg, .row.is-selected .row-icon img { filter: none; }
+
+    /* the window in front: its title bar gets a heavier rule (the stripes are a gradient and disappear) */
+    .win.is-active .win-title { border-bottom-width: 3px; border-bottom-style: double; }
+    .win.is-active { outline: 2px solid CanvasText; }
+
+    /* the default button had a ring made of box-shadows */
+    .btn.is-default { outline: 2px solid CanvasText; outline-offset: 2px; }
+
+    /* focus rings made of box-shadows become outlines */
+    .win-scroll:focus-visible, .sc-scroll:focus-visible, .br-scroll:focus-visible {
+        box-shadow: none;
+        outline: 2px solid Highlight;
+        outline-offset: -2px;
+    }
+
+    /* small drawn controls: their marks were background colours */
+    .chk input:checked + .chk-box::before, .chk input:checked + .chk-box::after,
+    .rad input:checked + .rad-dot::after { forced-color-adjust: none; background: CanvasText; }
+    .chk input:disabled:checked + .chk-box::before, .chk input:disabled:checked + .chk-box::after { background: GrayText; }
+    .sb-thumb { forced-color-adjust: none; background: Canvas; border: 1px solid CanvasText; }
+    .pat[aria-checked="true"] { outline: 3px solid Highlight; }
+    input.sld::-webkit-slider-thumb, input.sld::-moz-range-thumb { forced-color-adjust: none; background: ButtonText; }
+}

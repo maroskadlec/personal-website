@@ -1,0 +1,8 @@
+# GitHub Pages builds this repository with Jekyll. The site is plain HTML, CSS and JavaScript, so this file
+# only keeps the notes and experiments of the project out of it. Folders that start with an underscore
+# (_tools, _archive, _old-site) are never published, whatever is written here.
+exclude:
+  - README.md
+  - docs
+  - skills-lock.json
+  - version-*.html

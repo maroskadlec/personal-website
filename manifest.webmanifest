@@ -1,0 +1,20 @@
+{
+    "name": "Marian OS: Marian Kadlec",
+    "short_name": "Marian OS",
+    "description": "The portfolio of Marian Kadlec, senior digital designer in Prague, as a computer with a Desktop and a Terminal.",
+    "lang": "en",
+    "dir": "ltr",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "display_override": ["fullscreen", "standalone"],
+    "orientation": "any",
+    "background_color": "#050403",
+    "theme_color": "#050403",
+    "categories": ["portfolio", "design"],
+    "icons": [
+        { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ]
+}

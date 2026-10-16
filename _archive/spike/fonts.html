@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>body font test</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Atkinson+Hyperlegible:wght@400;700&family=Atkinson+Hyperlegible+Next:wght@400;500;700&family=Lexend:wght@400;600&family=Inter:wght@400;600&family=IBM+Plex+Sans:wght@400;600&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/system7.css">
+<style>
+html, body { height: auto; overflow: auto; }
+body { background: #8f8f8f; padding: 12px; font-family: var(--font-ui); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.fxwrap { position: relative; }
+.fxwrap::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0,0,0,.17) 0 1px, transparent 1px 3px); opacity: .6; }
+.win { position: relative !important; left: auto !important; top: auto !important; width: auto !important; height: auto !important; color: #000; }
+.win .win-body { padding: 12px 14px 14px; }
+.lbls { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.lbl { background: #fff; padding: 2px 5px; }
+</style></head><body>
+<div class="grid" id="g"></div>
+<script>
+const combos = [
+  ['Atkinson Hyperlegible Next 14/1.55', "'Atkinson Hyperlegible Next'", 14, 1.55],
+  ['Atkinson Hyperlegible Next 15/1.55', "'Atkinson Hyperlegible Next'", 15, 1.55],
+  ['Atkinson Hyperlegible 14/1.55', "'Atkinson Hyperlegible'", 14, 1.55],
+  ['Inter 14/1.55', "'Inter'", 14, 1.55],
+  ['IBM Plex Sans 14/1.55', "'IBM Plex Sans'", 14, 1.55],
+  ['Lexend 14/1.6', "'Lexend'", 14, 1.6],
+];
+combos.forEach(([name, fam, px, lh]) => {
+  document.getElementById('g').insertAdjacentHTML('beforeend', `
+  <div class="fxwrap"><section class="win is-active">
+    <div class="win-title"><i class="win-close"></i><span>${name}</span><i class="win-zoom"></i></div>
+    <div class="win-body" style="font-family:${fam},sans-serif;font-size:${px}px;line-height:${lh}">
+      <h2>Welcome to Marian OS</h2>
+      <p>This computer holds the portfolio of <b>Marian Kadlec</b>, a senior digital designer from Prague with 15+ years of making products look and work better. Funnily enough, I often ended up working on redesigns.</p>
+      <ul><li>Double-click <b>Marian Kadlec</b> to begin — Illegal 1l I O0 (Česká pojišťovna).</li><li>Press <b>F</b> to fill the whole screen.</li></ul>
+      <div class="lbls" style="font-size:${px - 1}px"><span class="lbl">Marian Kadlec</span><span class="lbl">Macintosh HD</span><span class="lbl">Projects</span></div>
+    </div>
+  </section></div>`);
+});
+</script></body></html>
