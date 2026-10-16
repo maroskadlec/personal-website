@@ -1,0 +1,225 @@
+/* ==========================================================================
+   MARIAN OS — a System 7.5-style desktop, drawn from scratch.
+   Everything inside .screen is in plain CSS px at the glass's native size
+   (no scaling => always crisp). No Apple icons, fonts or sounds.
+   This file: boot screen, menu bar, desktop, icons, buttons, pull-down menus.
+   Windows, scroll bars, dialogs and controls are in windows.css.
+   ========================================================================== */
+
+/* ---------- boot screen ---------- */
+.boot {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #cfcfcf;
+    color: #000;
+}
+.boot-happy { width: 64px; height: 64px; image-rendering: pixelated; }
+.boot-title { margin-top: 20px; font: 400 26px/1.1 var(--font-ui); letter-spacing: 0.02em; }
+.boot-sub { margin-top: 9px; font: 400 14px/1.3 var(--font-body); color: #4a4a4a; }
+.boot-ext {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    display: flex;
+    gap: 7px;
+}
+.boot-ext svg { width: 24px; height: 24px; opacity: 0; transform: translateY(5px); }
+.boot-ext svg.in { opacity: 1; transform: none; transition: opacity 0.12s steps(2), transform 0.12s steps(2); }
+
+/* ---------- the OS ---------- */
+.os {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+    font: 400 16px/1 var(--font-ui);
+    color: #000;
+}
+.os[hidden] { display: none; }
+
+/* menu bar */
+.menubar {
+    position: relative;
+    z-index: 20;
+    flex: none;
+    height: var(--mb-h);
+    display: flex;
+    align-items: stretch;
+    padding: 0 8px 0 4px;
+    background: #fff;
+    border-bottom: 1px solid #000;
+}
+.mb-item {
+    display: flex;
+    align-items: center;
+    padding: 0 9px;
+    white-space: nowrap;
+}
+.mb-item.is-open { background: #000; color: #fff; }
+@media (hover: hover) { .mb-item:hover { background: #000; color: #fff; } }
+.mb-item:focus-visible { outline: 2px solid #000; outline-offset: -3px; background: #000; color: #fff; }
+.mb-logo { padding: 0 8px; }
+.mb-logo svg { display: block; width: 14px; height: 17px; }
+.mb-logo.is-open svg { filter: brightness(1.15) saturate(1.1); }
+@media (hover: hover) { .mb-logo:hover svg { filter: brightness(1.15) saturate(1.1); } }
+.mb-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.mb-clock { min-width: 4.4em; align-self: stretch; display: flex; align-items: center; justify-content: flex-end; }          /* the whole bar height is the clock (five taps on it open the secret) */
+.mb-help { padding: 0 8px; font-family: var(--font-ui); align-self: stretch; }
+
+/* desktop: a pattern (the Desktop Patterns control panel swaps it), its own stacking context for the windows */
+.desktop {
+    position: relative;
+    z-index: 1;
+    isolation: isolate;
+    flex: 1;
+    overflow: hidden;
+    background: var(--desk-pattern, conic-gradient(var(--s7-desktop-a) 25%, var(--s7-desktop-b) 0 50%, var(--s7-desktop-a) 0 75%, var(--s7-desktop-b) 0) 0 0 / 2px 2px);
+    image-rendering: pixelated;
+}
+
+/* ---------- icons ---------- */
+.icon {
+    position: absolute;
+    left: var(--l, auto);
+    top: var(--t, auto);
+    right: var(--r, auto);
+    bottom: var(--b, auto);
+    width: 104px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-align: center;
+    cursor: default;
+    outline: none;
+}
+.desk-icons { display: contents; }
+.desk-icons > .icon { touch-action: none; }
+.desktop:focus { outline: none; }
+.icon-art-slot { position: relative; display: block; width: 32px; height: 32px; }
+.icon-art {
+    display: block;
+    width: 32px;
+    height: 32px;
+    image-rendering: pixelated;
+}
+.icon--hero .icon-art-slot, .icon--hero .icon-art { width: 48px; height: 48px; }
+.icon-label {
+    max-width: 100px;
+    padding: 2px 5px 2px;
+    font: 500 13px/1.25 var(--font-body);
+    background: #fff;
+    overflow-wrap: anywhere;
+}
+.icon.is-selected .icon-label { background: #000; color: #fff; }
+.icon.is-selected .icon-art { filter: brightness(0.55) contrast(1.15); }
+.icon--hero .icon-label { font-family: var(--font-ui); font-size: 16px; line-height: 1.05; padding: 3px 6px 2px; }
+.icon.is-drop .icon-art { filter: invert(1); }
+.icon.is-drop .icon-label { background: #000; color: #fff; }
+
+/* an alias shows another item: italic name and a small arrow */
+.icon.is-alias .icon-label, .row.is-alias .icon-label { font-style: italic; }
+.icon.is-alias .icon-art-slot::after {
+    content: '↗';
+    position: absolute;
+    left: -2px;
+    bottom: -2px;
+    width: 11px;
+    height: 11px;
+    display: grid;
+    place-items: center;
+    font: 700 9px/1 var(--font-body);
+    background: #fff;
+    border: 1px solid #000;
+}
+
+/* colour labels (the Label menu) */
+.icon[data-label="1"] .icon-label, .row[data-label="1"] .icon-label { background: var(--lc1); color: #fff; }
+.icon[data-label="2"] .icon-label, .row[data-label="2"] .icon-label { background: var(--lc2); color: #fff; }
+.icon[data-label="3"] .icon-label, .row[data-label="3"] .icon-label { background: var(--lc3); color: #fff; }
+.icon[data-label="4"] .icon-label, .row[data-label="4"] .icon-label { background: var(--lc4); color: #fff; }
+.icon[data-label="5"] .icon-label, .row[data-label="5"] .icon-label { background: var(--lc5); color: #fff; }
+.icon.is-selected[data-label] .icon-label { background: #000; }
+.os { --lc1: #c8372d; --lc2: #b25e00; --lc3: #1f7a44; --lc4: #2c62b8; --lc5: #7a3fa8; }
+
+/* the name being edited */
+.icon-label input.rename {
+    display: block;
+    width: 100%;
+    min-width: 7ch;
+    margin: -1px;
+    padding: 1px 3px;
+    font: inherit;
+    text-align: center;
+    color: #000;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 0;
+    outline: 2px solid #fff;
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* "I can't open that yet" blink */
+.icon.is-blink .icon-label { animation: icon-blink 0.32s steps(2) 2; }
+@keyframes icon-blink { 50% { background: #000; color: #fff; } }
+.icon:focus-visible .icon-label { outline: 2px solid #000; outline-offset: 1px; }
+
+/* ---------- buttons ---------- */
+.btn {
+    font: 400 16px/1 var(--font-ui);
+    padding: 4px 18px;
+    min-width: 72px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 6px;
+    box-shadow: inset -1px -1px 0 #a8a8a8;
+}
+.btn:active { background: #000; color: #fff; box-shadow: none; }
+.btn:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+.btn.is-default { box-shadow: inset -1px -1px 0 #a8a8a8, 0 0 0 2px #fff, 0 0 0 3px #000; }
+.btn[disabled] { color: #8a8a8a; border-color: #8a8a8a; box-shadow: none; cursor: default; }
+
+/* ---------- pull-down menus ---------- */
+.menu {
+    position: absolute;
+    z-index: 30;
+    min-width: 190px;
+    padding: 2px 0;
+    background: #fff;
+    border: 1px solid #000;
+    border-top: 0;
+    box-shadow: 2px 2px 0 #000;
+}
+.menu-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 22px;
+    width: 100%;
+    padding: 3px 14px 3px 22px;
+    font: 400 16px/1.15 var(--font-ui);
+    color: #000;
+    text-align: left;
+    background: #fff;
+}
+.menu-row .menu-check { position: absolute; left: 6px; top: 50%; transform: translateY(-52%); font: 700 13px/1 var(--font-body); }
+.menu-row .menu-swatch { display: inline-block; width: 10px; height: 10px; margin-right: 8px; border: 1px solid #000; vertical-align: -1px; }
+.menu-row kbd { font: 500 12px/1 var(--font-body); color: inherit; opacity: 0.85; }
+.menu-row:not([disabled]):focus-visible, .menu-row.is-flash { background: #000; color: #fff; outline: none; }
+@media (hover: hover) { .menu-row:not([disabled]):hover { background: #000; color: #fff; } }
+.menu-row.is-flash.is-off { background: #fff; color: #000; }
+.menu-row[disabled] { color: #8a8a8a; cursor: default; }
+.menu-sep { height: 1px; margin: 3px 0; background: repeating-linear-gradient(90deg, #000 0 1px, transparent 1px 2px); }

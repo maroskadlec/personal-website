@@ -1,0 +1,138 @@
+/* ==========================================================================
+   ERA 2008 — the website as it would have looked in 2008, shown inside the
+   Browser window. Table-ish layout, bevelled buttons, a visitor counter,
+   good intentions. Ported from the 2008 skin of version-5-redesign.html
+   (without its "Redesign it" machinery). Everything is scoped under .w8.
+   ========================================================================== */
+.w8 {
+    min-height: 100%;
+    padding: 12px 10px 18px;
+    background: #d6d2c9;
+    color: #000;
+    font: 15px/1.5 'Times New Roman', Times, serif;
+    -webkit-user-select: text;
+    user-select: text;
+    cursor: auto;
+}
+.w8 *, .w8 *::before, .w8 *::after { box-sizing: border-box; }
+.w8 img { display: block; max-width: 100%; image-rendering: auto; }
+.w8 a { color: #00c; text-decoration: underline; cursor: pointer; }
+.w8 a:visited { color: #551a8b; }
+.w8 a:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+
+.w8-frame {
+    width: min(778px, 100%);
+    margin: 0 auto;
+    background: #fff;
+    border: 2px outset #b8b4ab;
+    padding: 0 0 14px;
+}
+
+/* the blue header */
+.w8-hero {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 16px 18px 14px;
+    color: #fff;
+    background: linear-gradient(#34508f, #4a68ad);
+    border-bottom: 2px groove #9aa7c9;
+}
+.w8-hero img { flex: none; width: 86px; height: 86px; object-fit: cover; border: 3px ridge #c9c9c9; }
+.w8-kicker { margin-bottom: 4px; font: bold 11px Verdana, Geneva, sans-serif; color: #ffe97a; }
+.w8-name { font: bold 30px/1.1 'Times New Roman', Times, serif; text-shadow: 2px 2px 0 #1e2f5e; }
+.w8-title { margin-top: 4px; font: italic 14px/1.35 'Times New Roman', Times, serif; color: #eef3ff; }
+.w8-tag { margin-top: 6px; font: bold 12px/1.4 Verdana, Geneva, sans-serif; color: #fff; }
+.w8-tag span { display: block; }
+
+/* the navigation, a table like every site of the time */
+.w8-nav { width: calc(100% - 36px); margin: 10px 18px 0; border-collapse: separate; border-spacing: 4px; table-layout: fixed; }
+.w8-nav td { padding: 0; }
+.w8-nav a {
+    display: block;
+    padding: 5px 4px;
+    text-align: center;
+    font: bold 12px Verdana, Geneva, sans-serif;
+    color: #00c;
+    text-decoration: underline;
+    background: #e4e0d7;
+    border: 2px outset #cfcbc2;
+}
+.w8-nav a:active, .w8-nav a[aria-current="page"] { border-style: inset; color: #000; text-decoration: none; background: #d9d4c9; }
+
+/* sections */
+.w8-sec { padding: 14px 18px 2px; }
+.w8-h {
+    margin-bottom: 10px;
+    padding: 4px 8px;
+    font: bold 13px Verdana, Geneva, sans-serif;
+    background: #ffffcc;
+    border: 1px solid #b3b37a;
+}
+.w8-p { margin-bottom: 9px; font-size: 15px; line-height: 1.5; }
+.w8 .hl { font-weight: bold; }
+.w8-sub { margin: 4px 0 6px; font: bold 12px Verdana, Geneva, sans-serif; color: #38569e; }
+.w8-new {
+    display: inline-block;
+    margin-right: 6px;
+    padding: 1px 5px;
+    vertical-align: 2px;
+    font: bold 10px Verdana, Geneva, sans-serif;
+    color: #fff;
+    background: #d00;
+    animation: w8-blink 1s steps(1) infinite;
+}
+@keyframes w8-blink { 50% { opacity: 0; } }
+.w8.is-still .w8-new { animation: none; }
+
+.w8-skills { list-style: none; columns: 2; column-gap: 26px; margin-bottom: 6px; }
+.w8-skills li { padding: 2.5px 0; font-size: 14px; break-inside: avoid; }
+.w8-skills li::before { content: '» '; content: '» ' / ''; color: #38569e; font-weight: bold; }
+
+.w8-chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.w8-chips li { padding: 3px 9px; font: 12px Verdana, Geneva, sans-serif; background: #e4e0d7; border: 2px outset #cfcbc2; }
+
+.w8-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.w8 a.w8-btn {
+    padding: 6px 14px;
+    font: bold 12px Verdana, Geneva, sans-serif;
+    color: #00c;
+    text-decoration: underline;
+    background: #e4e0d7;
+    border: 2px outset #cfcbc2;
+}
+.w8 a.w8-btn:active { border-style: inset; }
+
+/* a card: a picture and its words */
+.w8-card { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px; padding: 8px; background: #fbfaf6; border: 1px solid #b8b4ab; }
+.w8-card img { flex: none; width: 96px; height: 96px; object-fit: cover; background: #fff; border: 3px ridge #c9c9c9; }
+.w8-card .w8-ct { margin-bottom: 3px; font: bold 14px Verdana, Geneva, sans-serif; }
+.w8-card p { margin-bottom: 6px; font-size: 14px; line-height: 1.45; }
+.w8-card .w8-meta { margin-bottom: 5px; font: 11px Verdana, Geneva, sans-serif; color: #444; }
+.w8-fig { margin: 4px 0 10px; }
+.w8-fig img { width: min(260px, 100%); height: auto; aspect-ratio: 1; border: 3px ridge #c9c9c9; background: #fff; }
+
+.w8-counter {
+    display: inline-block;
+    margin: 14px 18px 0;
+    padding: 5px 10px;
+    font: bold 12px 'Courier New', Courier, monospace;
+    letter-spacing: 0.15em;
+    color: #33ff33;
+    background: #000;
+    border: 2px inset #666;
+}
+.w8-best { display: block; margin: 8px 18px 0; font: 10px Verdana, Geneva, sans-serif; color: #666; }
+.w8-foot { margin: 16px 18px 0; padding-top: 10px; font: 11px Verdana, Geneva, sans-serif; color: #555; border-top: 1px dashed #999; }
+
+/* a narrow window (or a phone): one column, the navigation in two rows */
+@container page (max-width: 540px) {
+    .w8-skills { columns: 1; }
+    .w8-hero { flex-direction: column; align-items: flex-start; }
+    .w8-card { flex-direction: column; }
+    .w8-card img { width: 100%; height: auto; max-height: 220px; }
+    .w8-nav, .w8-nav tbody { display: block; width: calc(100% - 36px); }
+    .w8-nav tr { display: flex; flex-wrap: wrap; gap: 4px; }
+    .w8-nav td { flex: 1 1 30%; }
+    .w8-nav a { padding: 10px 2px; font-size: 11px; }
+}

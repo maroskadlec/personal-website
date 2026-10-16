@@ -1,0 +1,155 @@
+/* ==========================================================================
+   CRT — the glass in front of the OS. Pure CSS, no WebGL, no backdrop-filter.
+   Layers (back → front):  .screen (the OS)  →  fx-scan  →  fx-roll  →
+   fx-vig  →  fx-sheen  →  fx-glare (follows the pointer)  →  fx-dead (only when off)
+   Turn the whole stack off with  body.fx-off  (Control Panel "Monitors", later).
+   ========================================================================== */
+
+.screen {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: #000;
+    color: #000;
+    font-family: var(--font-ui);
+    visibility: hidden;
+    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='20' viewBox='0 0 13 20' shape-rendering='crispEdges'%3E%3Cpath d='M1 1v16l4-4 3 7 3-1.4-3-6.8h5z' fill='%23000' stroke='%23fff' stroke-width='1.2' stroke-linejoin='round'/%3E%3C/svg%3E") 1 1, default;
+    -webkit-user-select: none;
+    user-select: none;
+}
+.is-on .screen { visibility: visible; }
+
+.glass-fx { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+.glass-fx i { position: absolute; inset: 0; display: block; }
+
+/* scanlines: 1px dark every 3px */
+.fx-scan {
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.17) 0 1px, transparent 1px 3px);
+    opacity: 0.42;           /* legibility first: scanlines stay a hint */
+}
+/* slow rolling brightness bar */
+.fx-roll {
+    inset: auto 0 auto 0 !important;
+    top: -34% !important;
+    height: 34%;
+    background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.045) 55%, transparent);
+    animation: crt-roll 9s linear infinite;
+}
+@keyframes crt-roll { from { transform: translateY(0); } to { transform: translateY(430%); } }
+
+/* curved-tube falloff */
+.fx-vig {
+    background:
+        radial-gradient(ellipse 78% 74% at 50% 48%, transparent 56%, rgba(0, 0, 0, 0.46) 100%);
+    box-shadow:
+        inset 0 0 calc(var(--u, 6px) * 5) rgba(0, 0, 0, 0.55),
+        inset 0 0 calc(var(--u, 6px) * 1.4) rgba(255, 255, 255, 0.05);
+}
+/* fixed reflection of the room (window, lamp) on the glass */
+.fx-sheen {
+    background:
+        linear-gradient(122deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.045) 22%, transparent 38%),
+        linear-gradient(322deg, rgba(255, 255, 255, 0.05) 0%, transparent 22%);
+}
+/* moves with the mouse */
+.fx-glare {
+    background: radial-gradient(circle at var(--gx, 28%) var(--gy, 18%), rgba(255, 255, 255, 0.10), transparent 42%);
+}
+/* a dead tube: dark green-grey glass with a soft reflection of the room */
+.fx-dead {
+    background:
+        linear-gradient(112deg, rgba(255, 255, 255, 0.10) 0 26%, rgba(255, 255, 255, 0) 26.4%),
+        radial-gradient(120% 90% at 30% 14%, rgba(170, 196, 186, 0.17), transparent 58%),
+        linear-gradient(165deg, #151a17, #080a09);
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+.is-on .fx-dead, .is-boot .fx-dead, .is-desktop .fx-dead { opacity: 0; }
+
+/* power-on: the white line before the picture */
+.crt-line {
+    position: absolute;
+    left: 0; right: 0;
+    top: calc(50% - 1px);
+    height: 2px;
+    z-index: 6;
+    pointer-events: none;
+    background: #fff;
+    box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.9), 0 0 28px 6px rgba(190, 255, 245, 0.6);
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+/* gentle flicker */
+.glass-fx { animation: crt-flicker 6.5s steps(1) infinite; }
+@keyframes crt-flicker {
+    0%, 100% { opacity: 1; }
+    47% { opacity: 0.965; }
+    48% { opacity: 1; }
+    83% { opacity: 0.975; }
+    84% { opacity: 1; }
+}
+
+/* FX off: reduced motion, or the visitor switched them off */
+.fx-off .fx-scan,
+.fx-off .fx-roll,
+.fx-off .fx-glare { display: none; }
+.fx-off .glass-fx { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+    .fx-roll { display: none; }
+    .glass-fx { animation: none; }
+}
+
+/* ---------- viewport-level controls (fullscreen + sound) ---------- */
+.hud {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 60;
+    display: flex;
+    gap: 8px;
+    opacity: 0.55;
+    transition: opacity 0.25s ease;
+}
+.hud:hover, .hud:focus-within { opacity: 1; }
+/* when the glass fills the viewport the top edge belongs to the menu bar */
+.is-immersive .hud { top: auto; right: auto; bottom: 14px; left: 14px; }
+.hud button {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #ece6d4;
+    transition: background 0.2s, border-color 0.2s;
+}
+.hud button:hover { background: rgba(255, 255, 255, 0.14); border-color: rgba(255, 255, 255, 0.34); }
+.hud button:focus-visible { outline: 2px solid var(--teal-bright); outline-offset: 2px; }
+.hud svg { width: 18px; height: 18px; }
+.hud [data-off] { display: none; }
+.hud .is-muted [data-on] { display: none; }
+.hud .is-muted [data-off] { display: block; }
+.is-immersive #zoomBtn [data-expand] { display: none; }
+#zoomBtn [data-collapse] { display: none; }
+.is-immersive #zoomBtn [data-collapse] { display: block; }
+.is-pocket #zoomBtn { display: none; }
+
+/* pocket mode: no Mac, so the power button is a plain pixel-styled control */
+.pocket-power {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    z-index: 40;
+    transform: translate(-50%, -50%);
+    display: none;
+    padding: 14px 22px;
+    font: 400 26px var(--font-ui);
+    letter-spacing: 0.04em;
+    color: #e9fff9;
+    background: rgba(32, 178, 170, 0.12);
+    border: 2px solid var(--teal);
+    border-radius: 12px;
+}
+.is-pocket.is-off .pocket-power { display: block; }

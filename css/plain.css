@@ -1,0 +1,64 @@
+/* ==========================================================================
+   PLAIN — the portfolio as a simple document.
+
+   index.html starts with class "no-js" on <html>; a small script in the head turns it into
+   "js" when the browser can run the machine. So this page is what you get:
+     - without JavaScript,
+     - in a browser too old for the Desktop (no ES modules, container queries, inert, color-mix),
+     - when the machine fails to start (class "failed"),
+     - on purpose, with ?plain.
+   With the machine running, the same text (#seo) is hidden from the eye and from screen readers (modes.js sets
+   aria-hidden: they use the Desktop or the Terminal) and stays in the page for search engines.
+   The text is made by _tools/seo.mjs from js/content/*.
+   ========================================================================== */
+
+/* the machine is running: the text is hidden from the eye */
+.js #seo {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+.js #seo .plain-only { display: none; }
+
+/* the machine is not running: the text is the page */
+.no-js, .no-js body { height: auto; min-height: 100%; overflow: auto; }
+.no-js .screen { display: none; }
+
+.no-js #seo {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 40px 22px 80px;
+    color: #e9e4d3;
+    font: 400 18px/1.6 var(--font-body);
+}
+.no-js #seo header { margin-bottom: 8px; }
+.no-js #seo header img { display: block; width: auto; height: 160px; margin-bottom: 20px; }          /* the portrait as it is: a round teal shape with the head in front of it */
+.no-js #seo h1 { font: 400 64px/0.95 var(--font-ui); color: var(--teal-bright); margin-bottom: 14px; }
+.no-js #seo .lead { font-size: 22px; line-height: 1.4; color: #fff; margin-bottom: 10px; }
+.no-js #seo .meta { font-size: 16px; color: #b9b4a3; }
+.no-js #seo h2 { font: 400 36px/1.05 var(--font-ui); color: #fff; margin: 52px 0 16px; padding-top: 22px; border-top: 1px solid #34322c; }
+.no-js #seo h3 { font: 700 18px/1.35 var(--font-body); color: #fff; margin: 26px 0 6px; }
+.no-js #seo p { margin: 0 0 14px; }
+.no-js #seo ul, .no-js #seo ol { margin: 0 0 14px 1.3em; }
+.no-js #seo li { margin: 5px 0; padding-left: 2px; }
+.no-js #seo strong { color: #fff; font-weight: 700; }
+.no-js #seo a { color: var(--teal-bright); text-underline-offset: 3px; }
+@media (hover: hover) { .no-js #seo a:hover { color: #fff; } }
+.no-js #seo a:focus-visible { outline: 2px solid var(--teal-bright); outline-offset: 3px; }
+.no-js #seo .plain-only { margin: 0 0 32px; padding: 12px 16px; border: 1px solid #4a473e; border-radius: 4px; font-size: 16px; color: #cfc9b6; }
+.no-js #seo .plain-only p { margin: 0; }
+/* the way back to the machine: only where the browser could run it (shown on purpose with ?plain, or the machine failed to start) */
+.no-js #seo .plain-back { display: none; margin-top: 10px; font-weight: 700; }
+.can-js #seo .plain-back, .failed #seo .plain-back { display: block; }
+
+@media (max-width: 520px) {
+    .no-js #seo { padding: 28px 18px 64px; font-size: 17px; }
+    .no-js #seo h1 { font-size: 52px; }
+    .no-js #seo h2 { font-size: 32px; margin-top: 44px; }
+}

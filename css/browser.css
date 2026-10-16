@@ -1,0 +1,99 @@
+/* ==========================================================================
+   BROWSER — the window around the 2008 website: a toolbar with Back, Forward,
+   Reload and Home, an address bar, the page with its own scroll bar, a status line.
+   System 7 chrome, original drawing (no third-party browser art).
+   ========================================================================== */
+.br { position: absolute; inset: 0; display: flex; flex-direction: column; background: #fff; container: brw / inline-size; }
+
+.br-bar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    background: #fff;
+    border-bottom: 1px solid #000;
+}
+.br-btn {
+    flex: none;
+    width: 26px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 4px;
+    box-shadow: inset -1px -1px 0 #a8a8a8;
+}
+.br-btn svg { display: block; width: 16px; height: 16px; shape-rendering: crispEdges; }
+.br-btn:not([disabled]):active { background: #000; box-shadow: none; }
+.br-btn:not([disabled]):active svg { filter: invert(1); }
+.br-btn[disabled] { border-color: #8a8a8a; box-shadow: none; }
+.br-btn[disabled] svg { opacity: 0.35; }
+.br-btn:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
+
+.br-addr {
+    flex: 1;
+    min-width: 0;
+    height: 24px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    font: 500 13px/1 var(--font-body);
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 0;
+    box-shadow: inset 1px 1px 0 #a8a8a8;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: default;
+}
+.br-addr:focus-visible { outline: 2px solid #000; outline-offset: 1px; }
+.br-addr::selection { background: #000; color: #fff; }
+.br-prog { flex: none; width: 54px; height: 12px; border: 1px solid #000; background: #fff; }
+.br-prog i { display: block; width: 0; height: 100%; background: #000; }
+.br-prog.is-on i { transition: width 0.3s steps(9); width: 100%; }
+
+.br-view { position: relative; flex: 1; min-height: 0; }
+.br-scroll {
+    position: absolute;
+    container: page / inline-size;                 /* the 2008 page answers to the width of this window */
+    inset: 0 16px 0 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    outline: none;
+    background: #d6d2c9;
+}
+.br-scroll::-webkit-scrollbar { display: none; }
+.br-scroll:focus-visible { box-shadow: inset 0 0 0 2px #000; }
+.win .br-view .sb, .win.is-resizable .br-view .sb { bottom: 0; }        /* the scroll bar runs down to the status line */
+
+.br-status {
+    flex: none;
+    height: 20px;
+    padding: 0 22px 0 8px;
+    display: flex;
+    align-items: center;
+    font: 500 12px/1 var(--font-body);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: #fff;
+    border-top: 1px solid #000;
+}
+
+/* a narrow window: no room for the loading bar */
+@container brw (max-width: 440px) { .br-prog { display: none; } }
+
+@container screen (max-width: 560px) {
+    .br-btn { width: 40px; height: 36px; }
+    .br-addr { height: 36px; font-size: 12px; }
+    .br-prog { display: none; }
+    .br-status { height: 26px; padding-right: 8px; }
+}

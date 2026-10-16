@@ -1,0 +1,518 @@
+/* ==========================================================================
+   TERMINAL MODE — the text-based site, ported from version-6-cli-to-ui.html.
+   Everything lives under .mode-cli (v6 styled body and :root directly).
+   Contrast: the dim/faint inks are raised so that every piece of readable
+   text reaches WCAG AA (≥ 4.5:1) in every theme; run the audit in the console
+   (see plan) after touching a colour.
+   ========================================================================== */
+
+/* the default theme is mono; the others are [data-theme] overrides (see cli.js applyTheme) */
+.mode-cli {
+    --bg: #060606;
+    --panel: #0d0d0d;
+    --ink: #d6d6d6;
+    --ink-bright: #ffffff;
+    --ink-dim: rgba(214, 214, 214, 0.78);
+    --ink-faint: rgba(214, 214, 214, 0.6);
+    --line: rgba(214, 214, 214, 0.2);
+    --glow: 0 0 9px rgba(214, 214, 214, 0.3);
+    --mono: var(--font-term);
+
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    cursor: default;
+    -webkit-user-select: text;
+    user-select: text;
+    transition: background-color 0.45s ease, color 0.45s ease;
+}
+.mode-cli[hidden] { display: none; }
+
+.mode-cli[data-theme="green"] {
+    --ink: #4afa8b; --ink-bright: #7dffae; --bg: #050706; --panel: #0a0f0b;
+    --ink-dim: rgba(74, 250, 139, 0.78); --ink-faint: rgba(74, 250, 139, 0.6);
+    --line: rgba(74, 250, 139, 0.2); --glow: 0 0 9px rgba(74, 250, 139, 0.35);
+}
+.mode-cli[data-theme="amber"] {
+    --ink: #ffb454; --ink-bright: #ffd28a; --bg: #0a0702; --panel: #100b04;
+    --ink-dim: rgba(255, 180, 84, 0.8); --ink-faint: rgba(255, 180, 84, 0.66);
+    --line: rgba(255, 180, 84, 0.2); --glow: 0 0 9px rgba(255, 180, 84, 0.35);
+}
+.mode-cli[data-theme="blue"] {
+    --ink: #6cb6ff; --ink-bright: #a8d4ff; --bg: #04070c; --panel: #081019;
+    --ink-dim: rgba(108, 182, 255, 0.84); --ink-faint: rgba(108, 182, 255, 0.72);
+    --line: rgba(108, 182, 255, 0.2); --glow: 0 0 9px rgba(108, 182, 255, 0.35);
+}
+.mode-cli[data-theme="claude"] {
+    --ink: #e8825a; --ink-bright: #ffb38a; --bg: #0b0604; --panel: #120a06;
+    --ink-dim: rgba(232, 130, 90, 0.9); --ink-faint: rgba(232, 130, 90, 0.8);
+    --line: rgba(232, 130, 90, 0.2); --glow: 0 0 9px rgba(232, 130, 90, 0.35);
+}
+.mode-cli[data-theme="light"] {
+    --ink: #075f39; --ink-bright: #043d24; --bg: #edefe9; --panel: #f8f9f5;
+    --ink-dim: rgba(7, 95, 57, 0.93); --ink-faint: rgba(7, 95, 57, 0.86);
+    --line: rgba(7, 95, 57, 0.24); --glow: none;
+}
+.mode-cli[data-theme="light"] .cli-bg { opacity: 0.4; }
+
+.mode-cli ::selection { background: var(--ink); color: var(--bg); }
+.mode-cli img { max-width: 100%; display: block; }
+.mode-cli a { color: var(--ink-bright); }
+.mode-cli :focus-visible { outline: 2px solid var(--ink-bright); outline-offset: 3px; }
+/* the real input sits off screen (the dock draws what is typed), so the dock shows where the keyboard is */
+.mode-cli .dock:has(.shell-input:focus-visible) { outline: 2px solid var(--ink-bright); outline-offset: 3px; }
+
+.cli-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.cli-bg canvas { position: absolute; inset: 0; display: block; }
+
+/* top bar: who/where on the left, the Desktop|Terminal switch on the right */
+.cli-bar {
+    position: relative;
+    z-index: 60;                       /* above the build veil (40) and window (50): the Desktop | Terminal switch is always reachable */
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 10px clamp(14px, 3vw, 28px);
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+}
+.cli-id { margin-right: auto; font-size: 13px; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cli-id .u { color: var(--ink); font-weight: 500; }
+
+.cli-scroll {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    scroll-padding-bottom: 96px;                  /* a link reached with Tab must stop above the dock, not behind it */
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink-faint) transparent;
+}
+
+/* ================= SITE ================= */
+.mode-cli .site {
+    position: relative;
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 48px) 150px;
+}
+
+.mode-cli .reveal { opacity: 1; transform: none; }
+.mode-cli.is-pre .reveal { opacity: 0; transform: translateY(26px); }
+.mode-cli.is-pre .reveal.on {
+    opacity: 1;
+    transform: none;
+    transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---- hero ---- */
+.mode-cli .hero {
+    padding: clamp(40px, 9vh, 100px) 0 clamp(32px, 6vh, 64px);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: clamp(24px, 4vw, 56px);
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+}
+.mode-cli .crumb { font-size: 13px; color: var(--ink-dim); margin-bottom: clamp(16px, 3vh, 28px); }
+.mode-cli .crumb .ok { color: var(--ink-bright); }
+.mode-cli .hero h1 {
+    font-size: clamp(38px, 7vw, 84px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+    color: var(--ink-bright);
+    text-shadow: var(--glow);
+    outline: none;
+}
+.mode-cli .hero h1::after {
+    content: '_';
+    font-weight: 400;
+    color: var(--ink);
+    animation: cli-caret 1.05s steps(1) infinite;
+}
+@keyframes cli-caret { 50% { opacity: 0; } }
+.mode-cli .hero .title {
+    font-size: clamp(15px, 1.8vw, 19px);
+    color: var(--ink-dim);
+    line-height: 1.6;
+    margin-top: 18px;
+    max-width: 34em;
+}
+.mode-cli .hero .tagline {
+    display: block;
+    margin-top: 8px;
+    color: var(--ink-bright);
+    font-weight: 500;
+}
+.mode-cli .hero .tagline .tl { display: block; text-wrap: balance; }      /* no lonely "code." on a phone */
+.mode-cli .hero-photo { position: relative; width: clamp(110px, 15vw, 180px); }
+.mode-cli .hero-photo img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.12) brightness(0.92);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+.mode-cli .hero-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px);
+    pointer-events: none;
+}
+.mode-cli .hero-photo .tag {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 2px 8px;
+    color: var(--ink-dim);
+    white-space: nowrap;
+}
+
+/* ---- sections ---- */
+.mode-cli section { padding: clamp(34px, 6vh, 60px) 0 0; }
+.mode-cli .sec-h {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--ink-dim);
+    margin-bottom: clamp(18px, 3vh, 26px);
+}
+.mode-cli .sec-h b { color: var(--ink-bright); font-weight: 700; }
+.mode-cli .sec-h::before { content: '$ '; content: '$ ' / ''; color: var(--ink-faint); }
+
+.mode-cli .about p {
+    font-size: clamp(15.5px, 1.7vw, 18.5px);
+    line-height: 1.75;
+    color: var(--ink);
+    max-width: 46em;
+    margin-bottom: 14px;
+}
+.mode-cli .about .ai-line { color: var(--ink-bright); text-shadow: var(--glow); }
+.mode-cli .about .ai-line::before { content: '★ '; content: '★ ' / ''; }
+
+.mode-cli .skill-group {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--ink-dim);
+    margin: 26px 0 10px;
+}
+.mode-cli .sec-h + .skill-group { margin-top: 0; }
+.mode-cli .skills {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+}
+.mode-cli .skills li .hl { font-weight: 700; }
+.mode-cli .skills li {
+    font-size: 14px;
+    line-height: 1.5;
+    background: color-mix(in srgb, var(--panel) 82%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 13px 15px;
+    transition: border-color 0.25s ease, transform 0.25s ease;
+}
+@media (hover: hover) { .mode-cli .skills li:hover { border-color: var(--ink-dim); transform: translateY(-2px); } }
+.mode-cli .skills li::before { content: '[✓] '; content: '[✓] ' / ''; color: var(--ink-bright); }
+
+.mode-cli .career { list-style: none; max-width: 46em; }
+.mode-cli .career li {
+    font-size: clamp(13px, 1.5vw, 14.5px);
+    line-height: 2.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mode-cli .career .hash { color: var(--ink-faint); }
+.mode-cli .career .feat { color: var(--ink-dim); }
+.mode-cli .career .co { color: var(--ink-bright); font-weight: 700; }
+
+.mode-cli .flow-lead {
+    font-size: clamp(14px, 1.5vw, 16px);
+    line-height: 1.7;
+    color: var(--ink);
+    max-width: 46em;
+    margin-bottom: 18px;
+}
+/* one grid row per stage, so a long line wraps inside its own column instead of under the tree */
+.mode-cli .flow {
+    font-size: clamp(12.5px, 1.5vw, 14.5px);
+    line-height: 1.7;
+    color: var(--ink-dim);
+    max-width: 46em;
+}
+.mode-cli .flow-row {
+    display: grid;
+    grid-template-columns: 2ch 9.5ch 1fr;
+    padding: 0.2em 0;
+}
+.mode-cli .flow-tree { color: var(--ink-faint); }
+.mode-cli .flow-stage { color: var(--ink); font-weight: 500; }
+.mode-cli .flow .hl, .mode-cli .flow-note .ok { color: var(--ink-bright); font-weight: 700; }
+.mode-cli .flow-note {
+    display: grid;
+    grid-template-columns: 11ch 1fr;                 /* key | value, so a long value wraps inside its own column */
+    margin-top: 10px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink-dim);
+}
+.mode-cli .flow + .flow-note { margin-top: 16px; }
+.mode-cli .flow-note .k { color: var(--ink-faint); }
+.mode-cli .flow-note .k::after { content: ':'; }
+
+.mode-cli .links-row { display: flex; flex-wrap: wrap; gap: 12px; }
+.mode-cli .link-btn {
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--panel) 82%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 13px 20px;
+    transition: border-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+.mode-cli .link-btn::before { content: '→ '; content: '→ ' / ''; color: var(--ink-faint); }
+.mode-cli .link-btn::after { content: ' ↗'; content: ' ↗' / ''; color: var(--ink-faint); }
+@media (hover: hover) { .mode-cli .link-btn:hover { border-color: var(--ink-dim); color: var(--ink-bright); transform: translateY(-2px); } }
+.mode-cli .link-btn.mail { border-color: var(--ink-dim); color: var(--ink-bright); text-shadow: var(--glow); }
+.mode-cli .link-btn.mail::after { content: ''; }
+
+.mode-cli .site footer {
+    margin-top: clamp(44px, 8vh, 80px);
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.mode-cli .site footer .cmd-hint { color: var(--ink-faint); }
+.mode-cli .site footer .cmd-hint b { color: var(--ink-dim); font-weight: 500; }
+
+/* ================= INTRO (the build) ================= */
+.mode-cli .intro-veil {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: none;
+    background: color-mix(in srgb, var(--bg) 78%, transparent);
+}
+.mode-cli.is-pre .intro-veil { display: block; }
+
+.mode-cli .intro-wrap {
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    display: none;
+    place-items: center;
+    pointer-events: none;
+    padding: 16px;
+}
+.mode-cli.is-pre .intro-wrap { display: grid; }
+
+.mode-cli .intro-term {
+    pointer-events: auto;
+    width: min(580px, 100%);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+}
+.mode-cli .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 13px;
+    border-bottom: 1px solid var(--line);
+}
+.mode-cli .dot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.mode-cli .dot-r { background: #ff5f57; }
+.mode-cli .dot-y { background: #febc2e; }
+.mode-cli .dot-g { background: #28c840; }
+.mode-cli .term-title {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    color: var(--ink-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mode-cli .skip-btn {
+    background: none;
+    border: 1px solid var(--ink-faint);
+    border-radius: 6px;
+    color: var(--ink-dim);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 3px 10px;
+}
+@media (hover: hover) { .mode-cli .skip-btn:hover { color: var(--ink); border-color: var(--ink); } }
+
+.mode-cli .intro-body {
+    padding: 16px 18px 18px;
+    font-size: 13px;
+    line-height: 1.9;
+    min-height: 215px;
+    text-shadow: var(--glow);
+}
+
+/* shared line styling (intro + shell output) */
+.mode-cli .line { white-space: pre-wrap; word-break: break-word; }
+.mode-cli .gap { height: 0.8em; }
+.mode-cli .p { color: var(--ink-dim); }
+.mode-cli .u { color: var(--ink); font-weight: 500; }
+.mode-cli .c { color: var(--ink-bright); font-weight: 500; }
+.mode-cli .ok { color: var(--ink-bright); }
+.mode-cli .dim { color: var(--ink-dim); }
+.mode-cli .faint { color: var(--ink-faint); }
+.mode-cli .hl { color: var(--ink-bright); font-weight: 700; }
+
+/* ================= DOCKED SHELL ================= */
+.mode-cli .dock {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(16px + var(--kb, 0px));
+    margin: 0 auto;
+    z-index: 30;
+    width: min(680px, calc(100% - 24px));
+    background: color-mix(in srgb, var(--panel) 96%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);                 /* the page text scrolling under the dock must not ghost through */
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 13px;
+    cursor: text;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 14px 44px -12px rgba(0, 0, 0, 0.7);
+}
+.mode-cli.is-built .dock { display: flex; }
+.mode-cli .dock .p { white-space: nowrap; }
+.mode-cli .dock-typed { color: var(--ink-bright); font-weight: 500; white-space: pre; }
+.mode-cli .dock-caret {
+    display: inline-block;
+    width: 7px;
+    height: 15px;
+    background: var(--ink);
+    box-shadow: var(--glow);
+    animation: cli-caret 1.05s steps(1) infinite;
+    flex: 0 0 auto;
+}
+.mode-cli .dock-hint {
+    margin-left: auto;
+    color: var(--ink-faint);
+    font-size: 12px;
+    white-space: nowrap;
+    user-select: none;
+}
+.mode-cli .dock-hint b { color: var(--ink-dim); font-weight: 500; }
+
+.mode-cli .shell-out {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(76px + var(--kb, 0px));
+    margin: 0 auto;
+    z-index: 30;
+    width: min(680px, calc(100% - 24px));
+    max-height: min(46vh, 420px, calc(100% - var(--kb, 0px) - 150px));
+    overflow-y: auto;
+    background: color-mix(in srgb, var(--panel) 97%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.8;
+    display: none;
+    box-shadow: 0 14px 44px -12px rgba(0, 0, 0, 0.7);
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink-faint) transparent;
+}
+.mode-cli .shell-out.open { display: block; }
+.mode-cli .shell-out-close {
+    position: sticky;
+    top: 0;
+    float: right;
+    background: none;
+    border: none;
+    color: var(--ink-faint);
+    font-family: var(--mono);
+    font-size: 12px;
+    cursor: pointer;
+}
+@media (hover: hover) { .mode-cli .shell-out-close:hover { color: var(--ink); } }
+
+.mode-cli .shell-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    font-size: 16px;                 /* prevents iOS zoom */
+    left: -9999px;
+}
+
+@media (max-width: 720px) {
+    .mode-cli .hero { grid-template-columns: 1fr; }
+    .mode-cli .hero-photo { order: -1; width: clamp(120px, 34vw, 170px); }
+    .mode-cli .hero-photo .tag { left: 0; transform: none; }          /* the tag is wider than the photo: grow to the right, not off the glass */
+    /* a commit line wraps like in a real git log: the hash hangs, the message continues under itself */
+    .mode-cli .career li { white-space: normal; overflow: visible; padding-left: 8ch; text-indent: -8ch; line-height: 1.7; margin-bottom: 0.5em; }
+    .mode-cli .dock-hint { display: none; }
+    .cli-id { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .mode-cli .cli-scroll { scroll-behavior: auto; }
+    .mode-cli .hero h1::after, .mode-cli .dock-caret { animation: none; }
+}
+
+/* ---------- more contrast and forced colours (the Desktop's part is css/a11y.css) ---------- */
+@media (prefers-contrast: more) {
+    .mode-cli, .mode-cli[data-theme] { --ink-dim: var(--ink); --ink-faint: var(--ink); --line: var(--ink); --glow: none; }
+    .mode-cli .cli-bg { display: none; }
+}
+@media (forced-colors: active) {
+    .mode-cli .cli-bg, .mode-cli .intro-veil, .glass-fx { display: none; }
+    .mode-cli .dock-caret { forced-color-adjust: none; background: CanvasText; }
+    .mode-cli .link-btn:hover, .mode-cli .skills li:hover { border-color: Highlight; }
+    .mode-cli .skip-btn, .mode-cli .shell-out-close { border: 1px solid ButtonText; }
+}
+
+/* ---------- a finger (phone or tablet) ---------- */
+@media (pointer: coarse) {
+    .mode-cli .skip-btn { padding: 11px 16px; font-size: 13px; }
+    .mode-cli .shell-out-close { padding: 12px 10px; font-size: 13px; }
+    .mode-cli .dock { padding: 15px 16px; }
+}
+.mode-cli .cli-scroll, .mode-cli .shell-out { overscroll-behavior: contain; }

@@ -1,0 +1,374 @@
+/* ==========================================================================
+   THE MAC — compact all-in-one, front view, pure CSS/SVG.
+   Layout in --u (1% of the screen width). Geometry of the front face:
+
+     x: 0 ──── 11 ───────────── 119 ──── 130          (shell is 130u wide)
+     y: 11  bevel top        y: 94  bevel bottom       (bevel is 108u × 83u)
+     the beige frame is 11u on top AND on both sides
+     glass = 100u × 75u (4:3) sitting 4u inside the recess
+     chin: logo row y≈98–104, floppy / speaker row y≈108–117
+     the shell is 153u tall; the viewport usually crops it near y≈128
+   ========================================================================== */
+
+/* ---------- the room ---------- */
+.wall {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 85% 75% at 50% 38%, #1c1712 0%, #100d0b 55%, var(--wall) 100%);
+}
+.wall i { position: absolute; inset: 0; display: block; }
+
+/* off-frame desk lamp, upper left */
+.wall-lamp {
+    background: radial-gradient(circle at 6% 2%, rgba(255, 186, 112, 0.17), transparent 46%);
+}
+/* light spilling from the screen onto the wall */
+.wall-glow {
+    background: radial-gradient(ellipse 52% 56% at 50% 40%, rgba(var(--glow-rgb), calc(var(--lit) * 0.20)), transparent 72%);
+}
+.wall-grain {
+    opacity: 0.55;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- the shell ---------- */
+.mac {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: var(--mac-top, 3vh);
+    --u: calc(var(--W) / 100);
+}
+
+.mac-shell {
+    position: relative;
+    flex: none;
+    width: calc(var(--u) * 130);
+    height: calc(var(--u) * 153);
+    border-radius: calc(var(--u) * 7.5) calc(var(--u) * 7.5) calc(var(--u) * 4.5) calc(var(--u) * 4.5) / calc(var(--u) * 6.5) calc(var(--u) * 6.5) calc(var(--u) * 4.5) calc(var(--u) * 4.5);
+    background:
+        radial-gradient(130% 62% at 18% -8%, rgba(255, 255, 255, 0.60), transparent 56%),
+        radial-gradient(75% 52% at 50% 38%, rgba(255, 252, 240, calc(var(--lit) * 0.22)), transparent 72%),
+        radial-gradient(60% 40% at 86% 90%, rgba(206, 172, 96, 0.22), transparent 72%),
+        linear-gradient(180deg, var(--plastic-hi) 0%, var(--plastic) 30%, #d2cab4 62%, var(--plastic-lo) 100%);
+    box-shadow:
+        inset 0 calc(var(--u) * 0.5) 0 rgba(255, 255, 255, 0.62),
+        inset calc(var(--u) * 0.7) 0 calc(var(--u) * 1.1) rgba(255, 255, 255, 0.34),
+        inset calc(var(--u) * -0.9) 0 calc(var(--u) * 1.8) rgba(98, 84, 50, 0.38),
+        inset 0 calc(var(--u) * -0.9) calc(var(--u) * 1.5) rgba(98, 84, 50, 0.45),
+        0 calc(var(--u) * 2) calc(var(--u) * 5) rgba(0, 0, 0, 0.55),
+        0 0 calc(var(--u) * 26) rgba(0, 0, 0, 0.55),
+        0 0 calc(var(--u) * 34) rgba(var(--glow-rgb), calc(var(--lit) * 0.10));
+}
+
+/* soft light from the lamp on the left edge, shade on the right */
+.mac-shell::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background:
+        linear-gradient(104deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.17) 7%, rgba(255, 255, 255, 0) 24%),
+        linear-gradient(284deg, rgba(60, 48, 24, 0) 78%, rgba(60, 48, 24, 0.13) 100%);
+}
+
+/* the viewport crops the Mac; fade the cut into the dark instead of slicing it */
+.mac::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 16%;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(8, 6, 5, 0.6));
+}
+
+/* moulded-plastic grain + the seam where the case halves meet */
+.shell-grain,
+.shell-seam {
+    position: absolute;
+    pointer-events: none;
+    border-radius: inherit;
+}
+.shell-grain {
+    inset: 0;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .3 0 0 0 0 .2 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.shell-seam {
+    left: calc(var(--u) * 2.5);
+    right: calc(var(--u) * 2.5);
+    top: calc(var(--u) * 124);
+    height: 1px;
+    border-radius: 0;
+    background: linear-gradient(90deg, transparent, rgba(60, 48, 26, 0.28) 8%, rgba(60, 48, 26, 0.28) 92%, transparent);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* ---------- screen recess ---------- */
+.bevel {
+    position: absolute;
+    left: calc(var(--u) * 11);
+    top: calc(var(--u) * 11);
+    width: calc(var(--u) * 108);
+    height: calc(var(--u) * 83);
+    padding: calc(var(--u) * 1.4);
+    border-radius: calc(var(--u) * 5.4) / calc(var(--u) * 6);
+    /* the plastic slopes down into the recess: dark on top/left, lit on bottom/right */
+    background: linear-gradient(162deg, rgba(58, 46, 24, 0.62) 0%, rgba(116, 100, 66, 0.34) 42%, rgba(255, 255, 255, 0.78) 100%);
+    box-shadow: 0 calc(var(--u) * 0.35) 0 rgba(255, 255, 255, 0.45);
+}
+.recess {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: calc(var(--u) * 2.6);
+    border-radius: calc(var(--u) * 4.2) / calc(var(--u) * 4.8);
+    background: linear-gradient(180deg, #0d0c0b, #1b1917);
+    box-shadow:
+        inset 0 calc(var(--u) * 1.4) calc(var(--u) * 2.2) rgba(0, 0, 0, 0.85),
+        inset 0 calc(var(--u) * -0.4) calc(var(--u) * 0.8) rgba(255, 255, 255, 0.07);
+}
+.glass-slot {
+    position: relative;
+    width: calc(var(--u) * 100);
+    height: calc(var(--u) * 75);
+}
+.mac-glass {
+    /* sits exactly where .glass-slot is: centred, 15u from the shell's left, 15u from its top */
+    position: absolute;
+    left: calc(50% - var(--u) * 50);
+    top: calc(var(--mac-top, 3vh) + var(--u) * 15);
+    width: calc(var(--u) * 100);
+    height: calc(var(--u) * 75);
+    overflow: hidden;
+    border-radius: calc(var(--u) * 2.6) / calc(var(--u) * 3.3);
+    background: #070908;
+    isolation: isolate;
+    /* the thickness of the glass catching a little light */
+    box-shadow: 0 0 0 calc(var(--u) * 0.3) rgba(255, 255, 255, 0.055);
+}
+
+/* ---------- the chin ---------- */
+.chin { position: absolute; inset: 0; pointer-events: none; }
+.chin > * { position: absolute; pointer-events: auto; }
+
+/* the pear: printed on the plastic, with a hairline highlight below it */
+.logo {
+    left: calc(var(--u) * 11.4);
+    top: calc(var(--u) * 96.5);
+    width: calc(var(--u) * 7.1);
+    height: calc(var(--u) * 8.6);
+    filter: drop-shadow(0 calc(var(--u) * 0.22) 0 rgba(255, 255, 255, 0.55)) drop-shadow(0 calc(var(--u) * -0.12) 0 rgba(60, 48, 24, 0.22));
+}
+
+.speaker {
+    left: calc(var(--u) * 11);
+    top: calc(var(--u) * 109);
+    width: calc(var(--u) * 24);
+    height: calc(var(--u) * 7.2);
+    border-radius: calc(var(--u) * 1);
+    background-image: radial-gradient(circle at 50% 50%, rgba(46, 38, 20, 0.78) 0 calc(var(--u) * 0.42), transparent calc(var(--u) * 0.5));
+    background-size: calc(var(--u) * 1.5) calc(var(--u) * 1.5);
+    background-position: calc(var(--u) * 0.4) calc(var(--u) * 0.2);
+    filter: drop-shadow(0 calc(var(--u) * 0.18) 0 rgba(255, 255, 255, 0.55));
+    pointer-events: none;
+}
+
+.floppy {
+    left: calc(var(--u) * 47.75);
+    top: calc(var(--u) * 108);
+    width: calc(var(--u) * 34.5);
+    height: calc(var(--u) * 9);
+    border-radius: calc(var(--u) * 1.1);
+    background: linear-gradient(180deg, #c9c1aa, #d9d2bd);
+    box-shadow:
+        inset 0 calc(var(--u) * 0.3) calc(var(--u) * 0.5) rgba(70, 58, 30, 0.45),
+        inset 0 calc(var(--u) * -0.25) 0 rgba(255, 255, 255, 0.6),
+        0 calc(var(--u) * 0.25) 0 rgba(255, 255, 255, 0.6);
+    pointer-events: none;
+}
+.floppy-slot {
+    position: absolute;
+    left: calc(var(--u) * 5.75);
+    top: calc(var(--u) * 3.4);
+    width: calc(var(--u) * 23);
+    height: calc(var(--u) * 1.5);
+    border-radius: calc(var(--u) * 0.3);
+    background: #090807;
+    box-shadow:
+        inset 0 calc(var(--u) * 0.35) calc(var(--u) * 0.5) #000,
+        0 calc(var(--u) * 0.28) 0 rgba(255, 255, 255, 0.6);
+}
+.floppy-led {
+    position: absolute;
+    right: calc(var(--u) * 2.6);
+    top: calc(var(--u) * 3.7);
+    width: calc(var(--u) * 0.9);
+    height: calc(var(--u) * 0.9);
+    border-radius: 50%;
+    background: #4a3d16;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+    transition: background 0.1s, box-shadow 0.1s;
+}
+.is-busy .floppy-led { background: #ffb347; box-shadow: 0 0 calc(var(--u) * 1.4) #ffb347; }
+.floppy-eject {
+    position: absolute;
+    left: calc(var(--u) * 2.4);
+    top: calc(var(--u) * 3.1);
+    width: 0; height: 0;
+    border-left: calc(var(--u) * 0.9) solid transparent;
+    border-right: calc(var(--u) * 0.9) solid transparent;
+    border-bottom: calc(var(--u) * 1.1) solid rgba(60, 50, 28, 0.7);
+}
+.floppy-eject::after {
+    content: '';
+    position: absolute;
+    left: calc(var(--u) * -0.9);
+    top: calc(var(--u) * 1.3);
+    width: calc(var(--u) * 1.8);
+    height: calc(var(--u) * 0.35);
+    background: rgba(60, 50, 28, 0.7);
+}
+
+/* brightness dial (decorative for now) */
+.dial {
+    left: calc(var(--u) * 103.4);
+    top: calc(var(--u) * 97.9);
+    width: calc(var(--u) * 6);
+    height: calc(var(--u) * 6);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 36% 30%, #fbf6e8 0%, #d9d1ba 55%, #b9b095 100%);
+    box-shadow:
+        0 calc(var(--u) * 0.35) calc(var(--u) * 0.6) rgba(60, 48, 24, 0.55),
+        0 0 0 calc(var(--u) * 0.45) rgba(120, 104, 66, 0.35),
+        inset 0 calc(var(--u) * -0.3) calc(var(--u) * 0.4) rgba(80, 66, 36, 0.4);
+    pointer-events: none;
+}
+.dial::after {
+    content: '';
+    position: absolute;
+    left: calc(50% - var(--u) * 0.22);
+    top: calc(var(--u) * 0.55);
+    width: calc(var(--u) * 0.44);
+    height: calc(var(--u) * 1.7);
+    border-radius: 99px;
+    background: rgba(50, 40, 20, 0.7);
+    transform-origin: 50% calc(var(--u) * 2.45);
+    transform: rotate(32deg);
+}
+
+.power-led {
+    left: calc(var(--u) * 99.2);
+    top: calc(var(--u) * 100.4);
+    width: calc(var(--u) * 1.3);
+    height: calc(var(--u) * 1.3);
+    border-radius: 50%;
+    background: #1b2a1d;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.45), 0 calc(var(--u) * 0.2) 0 rgba(255, 255, 255, 0.55);
+    transition: background 0.25s, box-shadow 0.25s;
+    pointer-events: none;
+}
+.is-on .power-led {
+    background: #76ffa0;
+    box-shadow: 0 0 calc(var(--u) * 1.4) rgba(118, 255, 160, 0.9), 0 0 calc(var(--u) * 3) rgba(118, 255, 160, 0.45), inset 0 0 0 1px rgba(0, 60, 20, 0.35);
+}
+
+.power-key {
+    left: calc(var(--u) * 112);
+    top: calc(var(--u) * 97.5);
+    width: calc(var(--u) * 7);
+    height: calc(var(--u) * 7);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background:
+        radial-gradient(circle at 50% 38%, #cfc7ae 0%, #e1dac6 70%, #efe9d8 100%);
+    box-shadow:
+        inset 0 calc(var(--u) * 0.45) calc(var(--u) * 0.8) rgba(70, 58, 30, 0.55),
+        inset 0 calc(var(--u) * -0.3) 0 rgba(255, 255, 255, 0.8),
+        0 calc(var(--u) * 0.3) 0 rgba(255, 255, 255, 0.6),
+        0 0 0 calc(var(--u) * 0.45) rgba(120, 104, 66, 0.28);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.power-key svg { width: 54%; height: 54%; opacity: 0.62; }
+.power-key:hover svg { opacity: 0.9; }
+.power-key:active { transform: scale(0.94); }
+.power-key:focus-visible { outline: 2px solid var(--teal-bright); outline-offset: 3px; }
+.is-on .power-key svg { stroke: #178a84; opacity: 0.9; }
+
+/* the key pulses until the visitor presses it */
+.is-off .power-key::after {
+    content: '';
+    position: absolute;
+    inset: calc(var(--u) * -1.6);
+    border-radius: 50%;
+    border: 2px solid rgba(64, 224, 208, 0.7);
+    animation: key-pulse 1.9s ease-out infinite;
+    pointer-events: none;
+}
+@keyframes key-pulse {
+    0%   { transform: scale(0.62); opacity: 0.95; }
+    100% { transform: scale(1.35); opacity: 0; }
+}
+
+/* ---------- sticky note ---------- */
+.sticky {
+    left: calc(var(--u) * 96.5);
+    top: calc(var(--u) * 106.5);
+    width: calc(var(--u) * 26);
+    height: calc(var(--u) * 19.5);
+    display: grid;
+    place-items: center;
+    padding-top: calc(var(--u) * 1.2);
+    font-family: var(--font-hand);
+    font-size: calc(var(--u) * 4);
+    line-height: 0.92;
+    text-align: center;
+    color: #25264a;
+    background:
+        linear-gradient(135deg, transparent 88%, rgba(120, 96, 10, 0.16) 100%),
+        linear-gradient(180deg, #fbef9d 0%, #f4e276 100%);
+    box-shadow:
+        0 calc(var(--u) * 0.3) calc(var(--u) * 0.5) rgba(0, 0, 0, 0.30),
+        0 calc(var(--u) * 1.3) calc(var(--u) * 2) rgba(0, 0, 0, 0.22);
+    transform: rotate(3.2deg);
+    transform-origin: 50% 0;
+    pointer-events: none;
+}
+.sticky::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: calc(var(--u) * 3.2);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
+}
+.sticky em { font-style: normal; color: var(--teal-deep); }
+
+/* ---------- immersive / pocket: the Mac steps aside, the glass fills the viewport ---------- */
+.mac-shell { transition: opacity 0.55s ease; }
+.is-immersive .mac-shell { opacity: 0; pointer-events: none; }
+.is-immersive .mac::after { display: none; }
+.is-immersive .mac-glass {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: 30;
+}
+.is-pocket .mac-shell { display: none; }

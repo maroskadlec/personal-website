@@ -1,0 +1,132 @@
+/* ==========================================================================
+   TRAY + BALLOON — the "Desktop | Terminal" switch and the one-time tip.
+   The same markup is themed per mode through custom properties.
+   ========================================================================== */
+
+.tray { display: inline-flex; align-items: center; gap: 8px; }
+
+.tray--os {
+    --tray-h: 18px;
+    --tray-fg: #000;
+    --tray-bg: #fff;
+    --tray-on-fg: #fff;
+    --tray-on-bg: #000;
+    --tray-border: #000;
+    --tray-font: 400 15px/1 var(--font-ui);
+    --tray-focus: #000;
+    --tray-r: 5px;
+    margin-right: 4px;
+}
+@media (pointer: coarse) { .tray--os { --tray-h: 28px; } }
+.tray--cli {
+    --tray-h: 30px;
+    --tray-fg: var(--ink);
+    --tray-bg: transparent;
+    --tray-on-fg: var(--bg);
+    --tray-on-bg: var(--ink);
+    --tray-border: var(--ink-faint);
+    --tray-font: 500 12.5px/1 var(--font-term);
+    --tray-focus: var(--ink-bright);
+    --tray-r: 8px;
+}
+
+@media (pointer: coarse) { .tray--cli { --tray-h: 44px; } }
+.tray-seg {
+    display: inline-flex;
+    min-height: var(--tray-h);                    /* grows with the text if a visitor asks for more line spacing, instead of cutting it off */
+    border: 1px solid var(--tray-border);
+    border-radius: var(--tray-r);
+    overflow: hidden;
+}
+.tray-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+    font: var(--tray-font);
+    color: var(--tray-fg);
+    background: var(--tray-bg);
+    white-space: nowrap;
+}
+.tray-tab + .tray-tab { border-left: 1px solid var(--tray-border); }
+.tray-tab svg { flex: none; }
+.tray-tab[aria-selected="true"] { color: var(--tray-on-fg); background: var(--tray-on-bg); cursor: default; }
+@media (hover: hover) { .tray-tab:not([aria-selected="true"]):hover { background: color-mix(in srgb, var(--tray-fg) 14%, var(--tray-bg)); } }
+.tray-tab:focus-visible, .tray-snd:focus-visible { outline: 2px solid var(--tray-focus); outline-offset: -3px; }
+
+.tray-snd {
+    display: inline-grid;
+    place-items: center;
+    width: var(--tray-h);
+    height: var(--tray-h);
+    color: var(--tray-fg);
+    border: 1px solid var(--tray-border);
+    border-radius: var(--tray-r);
+    background: var(--tray-bg);
+}
+@media (hover: hover) { .tray-snd:hover { background: color-mix(in srgb, var(--tray-fg) 14%, var(--tray-bg)); } }
+.tray-snd[aria-pressed="false"] { opacity: 0.75; }
+
+/* small screens: bigger targets; the OS tray floats at the bottom, away from the menu bar.
+   It is position: fixed to the glass, so no ancestor up to .screen may carry a transform or filter. */
+@container screen (max-width: 560px) {
+    .tray--os {
+        position: fixed;
+        left: 50%;
+        bottom: 12px;                                 /* (the glass itself is already inside the safe area) */
+        transform: translateX(-50%);
+        z-index: 35;
+        --tray-h: 44px;
+        --tray-font: 400 18px/1 var(--font-ui);
+        --tray-r: 11px;
+        margin: 0;
+        padding: 5px;
+        background: #fff;
+        border: 1px solid #000;
+        border-radius: 14px;
+        box-shadow: 2px 2px 0 #000;
+    }
+    .tray--os .tray-tab { padding: 0 14px; }
+    .tray--cli { --tray-h: 40px; }
+    .tray--cli .tray-tab { padding: 0 12px; }
+}
+
+/* ---------- balloon help ---------- */
+.balloon {
+    position: absolute;
+    z-index: 50;
+    max-width: min(260px, calc(100% - 16px));
+    padding: 9px 13px;
+    background: #fff;
+    color: #000;
+    border: 1px solid #000;
+    border-radius: 12px;
+    font: 500 14px/1.4 var(--font-body);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+.balloon::before, .balloon::after {
+    content: '';
+    position: absolute;
+    left: var(--tail, 24px);
+    border: 8px solid transparent;
+}
+/* tail pointing up (balloon sits below its anchor) */
+.balloon::before { top: -17px; border-bottom-color: #000; }
+.balloon::after { top: -15px; border-bottom-color: #fff; }
+.balloon--above::before { top: auto; bottom: -17px; border-bottom-color: transparent; border-top-color: #000; }
+.balloon--above::after { top: auto; bottom: -15px; border-bottom-color: transparent; border-top-color: #fff; }
+
+/* --bl-* are set by coach.js from the active Terminal theme (mono unless the visitor picked another) */
+.balloon--cli {
+    background: var(--bl-bg, #0d0d0d);
+    color: var(--bl-fg, #ffffff);
+    border-color: var(--bl-line, #d6d6d6);
+    font-family: var(--font-term);
+    font-size: 13px;
+    box-shadow: 0 8px 28px -8px rgba(0, 0, 0, 0.8);
+}
+.balloon--cli::before { border-bottom-color: var(--bl-line, #d6d6d6); border-top-color: transparent; }
+.balloon--cli::after { border-bottom-color: var(--bl-bg, #0d0d0d); border-top-color: transparent; }
+.balloon--cli.balloon--above::before { border-top-color: var(--bl-line, #d6d6d6); border-bottom-color: transparent; }
+.balloon--cli.balloon--above::after { border-top-color: var(--bl-bg, #0d0d0d); border-bottom-color: transparent; }
