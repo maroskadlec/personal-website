@@ -1,4 +1,16 @@
-# Marian OS (mariankadlec.cz)
+# Marian Kadlec (mariankadlec.cz)
+
+Úvodní stránku tvoří `index.html` a `css/home.css`. Proměnu váhy písmen a kreslené podtržení řídí `js/home.js`. Písma se načítají ze složky `fonts/`. Původ fontů a stav webových licencí popisuje `fonts/README.txt`. SVG podpis je v `icons/marian-kadlec-wordmark.svg`. Stránka funguje i bez JavaScriptu.
+
+- Pro místní náhled spusť `python3 -m http.server 8899 --bind 127.0.0.1` a otevři `http://localhost:8899/`.
+- Po úpravě CSS spusť `node _tools/build.mjs`. Příkaz `node _tools/build.mjs --check` ověří odkazy, metadata a soubory bez jejich změny.
+- Náhled pro sdílení se šablonou v `_tools/og-card.html` obnovíš příkazem `node _tools/og.mjs --out /tmp/marian-og --use b` při běžícím místním náhledu.
+- Všechny favicony a ikony pro přidání na plochu vycházejí z `icons/mk.svg`. Po jeho změně je obnov příkazem `node _tools/icons.mjs`; generuje také variantu pro maskování, kořenové ICO a Apple ikonu. Metadata pro vyhledávání a sdílení i údaje `Person` a `WebSite` jsou v hlavičce `index.html`; název a ikony pro přidání na plochu určuje `manifest.webmanifest`.
+- Ostrý web publikuje GitHub Pages z kořene větve `main`. Při nasazení spusť `node _tools/build.mjs --release` pro aktualizaci data v sitemapě.
+
+Níže jsou poznámky k předchozí úvodní stránce Marian OS z revize `4896baf`.
+
+## Marian OS v předchozí verzi
 
 Portfolio Mariana Kadlece jako **počítač**: jedna obrazovka s CRT sklem a dva módy téhož stroje. **Desktop** je operační systém ve stylu System 7 (portfolio jsou jeho soubory a aplikace), **Terminal** je textová verze webu, která se při prvním vstupu „postaví" příkazem. Přepíná se kdykoli (přepínač nahoře, klávesa `` ` ``, příkazy, ikona Terminal). Po startu se na Desktopu samo otevře okno „Marian Kadlec" (web ve stylu roku 2008); kontakt je v menu hrušky (Contact…).
 
