@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 /* ==========================================================================
-   ICONS — draws the PNG icons of the machine from the two pear drawings in icons/.
+   ICONS — derives every browser and home-screen icon from icons/mk.svg.
 
-     icons/icon.svg            the pear on a rounded black square (a normal icon)
-     icons/icon-maskable.svg   the pear on a full-bleed square, kept inside the safe circle
-                               (Android masks it; Apple draws its own corners)
+     icons/mk.svg             the source drawing, also used directly as the SVG favicon
+     icons/icon.svg           a generated copy for the PNG icons
+     icons/icon-maskable.svg  a generated full-bleed version with a safe inset
+                              (Android masks it; Apple draws its own corners)
 
-   and makes:  icon-512.png, icon-192.png, icon-maskable-512.png, apple-touch-icon-180.png, favicon-32.png
+   and makes:  icon-512.png, icon-192.png, icon-maskable-512.png, apple-touch-icon-180.png,
+               favicon-32.png and favicon-48.png
    and, at the root of the site, the two icons that browsers ask for whatever the <head> says
    (Safari fetches /favicon.ico, iOS /apple-touch-icon.png):  favicon.ico (16, 32 and 48 px) and apple-touch-icon.png
 
@@ -15,10 +17,10 @@
 
    Run from anywhere:   node _tools/icons.mjs
    Only the two root icons, from the PNGs already in icons/ (no Chrome):   node _tools/icons.mjs --root
-   Run it again after the pear in icons/*.svg changes (the manifest and the <head> already point at these names).
+   Run it again after icons/mk.svg changes. Do not edit the derived icons separately.
    ========================================================================== */
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -30,12 +32,34 @@ const chrome = process.env.CHROME || '/Applications/Google Chrome.app/Contents/M
 if (!rootOnly && !existsSync(chrome)) { console.error('Google Chrome not found: set CHROME=/path/to/chrome'); process.exit(1); }
 
 const work = mkdtempSync(join(tmpdir(), 'mk-icons-'));
+process.on('exit', () => rmSync(work, { recursive: true, force: true }));
+
+/** keep all icon variants tied to the approved 64 x 64 favicon drawing */
+function prepareDrawings() {
+    const svg = readFileSync(join(dir, 'mk.svg'), 'utf8');
+    const contents = /<svg\b[^>]*>([\s\S]*?)<\/svg>/.exec(svg)?.[1];
+    const background = /<rect\b[^>]*\bfill="([^"]+)"/.exec(svg)?.[1];
+    if (!contents || !background || !/viewBox="0 0 64 64"/.test(svg)) {
+        throw new Error('icons/mk.svg must have a 64 x 64 viewBox and a background rectangle.');
+    }
+    copyFileSync(join(dir, 'mk.svg'), join(dir, 'icon.svg'));
+    writeFileSync(join(dir, 'icon-maskable.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+    <rect width="64" height="64" fill="${background}"/>
+    <g transform="translate(6.4 6.4) scale(.8)">${contents}
+    </g>
+</svg>\n`);
+}
 
 /** draw an SVG at 512 x 512 into a PNG (transparent outside the drawing) */
 function render(svg, png) {
     const html = join(work, svg.replace(/\W/g, '_') + '.html');
     writeFileSync(html, `<!doctype html><html><body style="margin:0;background:transparent"><img src="${pathToFileURL(join(dir, svg)).href}" width="512" height="512" style="display:block"></body></html>`);
-    execFileSync(chrome, ['--headless=new', '--disable-gpu', '--hide-scrollbars', '--default-background-color=00000000', `--screenshot=${join(dir, png)}`, '--window-size=512,512', pathToFileURL(html).href], { stdio: 'ignore' });
+    execFileSync(chrome, [
+        '--headless=new', '--disable-gpu', '--hide-scrollbars', '--no-first-run',
+        '--force-device-scale-factor=1', '--default-background-color=00000000',
+        `--user-data-dir=${join(work, 'chrome-profile')}`, '--virtual-time-budget=1000',
+        `--screenshot=${join(dir, png)}`, '--window-size=512,512', pathToFileURL(html).href
+    ], { stdio: 'ignore' });
     console.log(`drew ${png}`);
 }
 
@@ -46,11 +70,13 @@ function resize(from, size, to) {
 }
 
 if (!rootOnly) {
+    prepareDrawings();
     render('icon.svg', 'icon-512.png');
     render('icon-maskable.svg', 'icon-maskable-512.png');
     resize('icon-512.png', 192, 'icon-192.png');
     resize('icon-maskable-512.png', 180, 'apple-touch-icon-180.png');
     resize('icon-512.png', 32, 'favicon-32.png');
+    resize('icon-512.png', 48, 'favicon-48.png');
 }
 
 /* the root icons */

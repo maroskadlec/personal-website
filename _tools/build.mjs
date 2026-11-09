@@ -1,35 +1,8 @@
 #!/usr/bin/env node
 /* ==========================================================================
-   BUILD — the one command to run before a commit.
-
-   There is no build step for the browser: the files are served as they are. But a few things in
-   index.html are made from the sources and must be kept in step with them:
-
-     1. the portfolio as plain text, and the skills in the JSON-LD            (seo.mjs)
-     2. file fingerprints. GitHub Pages lets a browser keep any file for 10 minutes and the files
-        keep their names after every deploy, so a visitor could get a new page with old modules.
-        Every .js and .css file gets ?v=<10 characters of its SHA-256> wherever it is loaded:
-          the import map (every module, wherever it is imported from)    importmap:start / :end
-          the list of modules fetched at start                           modulepreload:start / :end
-          the <link rel=stylesheet> tags, the <script src> of GSAP, the loader's main.src,
-          and the two loadCss('css/cli.css') in js/main.js
-        Fonts and images are not fingerprinted: when one changes, give it a new name.
-     3. with --release: today's date in BUILD_DATE (js/content/desktop.js, what Get Info shows)
-        and in sitemap.xml.
-
-   Then it checks the site. It fails (exit 1) when:
-     - a file referenced by the HTML, the CSS, the manifest or the JavaScript does not exist, has the wrong
-       letter case (GitHub Pages cares, macOS does not) or is not part of the site (see FILES and DIRS)
-     - the site mentions mariankadlec.com (which does not exist), has a noindex, or its canonical,
-       Open Graph address, JSON-LD, robots.txt and sitemap disagree with contact.site
-     - a tracker, a font or script CDN or a cookie write is found, or a page loads something from another origin
-     - the licences of the fonts, the 1200 x 630 og-image.jpg or the manifest are missing or broken
-
-   Run from anywhere:   node _tools/build.mjs             write what is out of date, then check
-                        node _tools/build.mjs --release   also set today's date
-                        node _tools/build.mjs --check     write nothing; fail if anything is out of date or wrong
+   BUILD — fingerprint the stylesheets and scripts linked from the homepage and validate the site.
+   Use --check to verify without writing. Use --release to also update the sitemap date.
    ========================================================================== */
-import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, posix } from 'node:path';
@@ -62,99 +35,21 @@ const want = new Map();
 const text = (rel) => (want.has(rel) ? want.get(rel) : readFileSync(join(site, rel), 'utf8'));
 const set = (rel, value) => want.set(rel, value);
 
-/* ---------------------------------------------------------- 1. the plain text version */
-try {
-    execFileSync(process.execPath, [join(here, 'seo.mjs'), ...(CHECK ? ['--check'] : [])], { stdio: 'inherit' });
-} catch (e) {
-    bad('index.html: the plain text version is out of date (run _tools/build.mjs)');
-}
-
-/* ---------------------------------------------------------- 3. the date of a release (before the fingerprints: desktop.js is fingerprinted too) */
 if (RELEASE) {
-    const now = new Date();
-    const long = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Europe/Prague' });
-    const iso = now.toLocaleDateString('sv-SE', { timeZone: 'Europe/Prague' });
-    set('js/content/desktop.js', text('js/content/desktop.js').replace(/(export const BUILD_DATE = ')[^']*(';)/, `$1${long}$2`));
+    const iso = new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Prague' });
     set('sitemap.xml', text('sitemap.xml').replace(/<lastmod>[^<]*<\/lastmod>/, `<lastmod>${iso}</lastmod>`));
-    console.log(`release date: ${long} (${iso})`);
+    console.log(`release date: ${iso}`);
 }
 
-/* ---------------------------------------------------------- 2. fingerprints */
-const cssHash = {};
-for (const f of siteFiles.filter((f) => f.startsWith('css/') && f.endsWith('.css'))) cssHash[f] = sha(readFileSync(join(site, f)));
-if (!cssHash['css/cli.css']) bad('css/cli.css is missing');
-
-/* main.js names css/cli.css (the Terminal's stylesheet is fetched later), so it is fingerprinted before the modules are */
-const mainBefore = text('js/main.js');
-const mainAfter = mainBefore.replace(/loadCss\('css\/cli\.css(\?v=[0-9a-f]+)?'\)/g, `loadCss('css/cli.css?v=${cssHash['css/cli.css']}')`);
-if (mainAfter === mainBefore && !/loadCss\('css\/cli\.css\?v=/.test(mainBefore)) bad("js/main.js: no loadCss('css/cli.css') found to fingerprint");
-set('js/main.js', mainAfter);
-
+const cssFiles = siteFiles.filter((f) => f.endsWith('.css'));
 const jsFiles = siteFiles.filter((f) => f.startsWith('js/') && f.endsWith('.js')).sort();
-const jsHash = {};
-for (const f of jsFiles) jsHash[f] = sha(Buffer.from(text(f)));
-const vendorHash = sha(readFileSync(join(site, 'vendor/gsap.min.js')));
-const url = (f) => `${f}?v=${jsHash[f]}`;
-
-/* the modules needed at start, in the order the browser would meet them (main.js names its imports, they name theirs) */
-const order = [];
-{
-    const seen = new Set();
-    const queue = ['js/main.js'];
-    while (queue.length) {
-        const f = queue.shift();
-        if (seen.has(f)) continue;
-        seen.add(f);
-        if (!exact.has(f)) { bad(`${f} is imported but does not exist`); continue; }
-        order.push(f);
-        const re = /^\s*(?:import|export)\s[^;]*?from\s+['"](\.[^'"]+)['"]|^\s*import\s+['"](\.[^'"]+)['"]/gm;
-        const src = text(f);
-        let m;
-        while ((m = re.exec(src))) queue.push(posix.normalize(posix.join(posix.dirname(f), m[1] || m[2])));
+const html = text('index.html').replace(
+    /(<(?:link rel="stylesheet" href|script src)=")((?:css|js)\/[\w.-]+\.(?:css|js))(\?v=[0-9a-f]+)?(")/g,
+    (match, start, file, version, end) => {
+        if (!exact.has(file)) return match;
+        return `${start}${file}?v=${sha(text(file))}${end}`;
     }
-}
-
-const importmap = `    <!-- importmap:start (made by _tools/build.mjs, do not edit by hand) -->
-    <script type="importmap">
-    {
-        "imports": {
-${jsFiles.map((f) => `            "./${f}": "./${url(f)}"`).join(',\n')}
-        }
-    }
-    </script>
-    <!-- importmap:end -->`;
-
-const preload = `    <!-- modulepreload:start (made by _tools/build.mjs, do not edit by hand) -->
-    <script>
-        /* the files the machine needs at start, fetched at once (not for the text version, which never runs them, nor where import maps are missing) */
-        if (window.__mkSupported && window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('importmap')) {
-            [${order.map((f) => `'${url(f)}'`).join(', ')}].forEach(function (h) {
-                var l = document.createElement('link');
-                l.rel = 'modulepreload';
-                l.href = h;
-                document.head.appendChild(l);
-            });
-        }
-    </script>
-    <!-- modulepreload:end -->`;
-
-function block(html, name, body) {
-    const re = new RegExp(`[ \\t]*<!-- ${name}:start[^]*?<!-- ${name}:end -->`);
-    if (!re.test(html)) { bad(`index.html has no <!-- ${name}:start --> ... <!-- ${name}:end --> markers`); return html; }
-    return html.replace(re, () => body);                              // a function: "$" in the body is not special
-}
-
-let html = text('index.html');
-html = block(html, 'importmap', importmap);
-html = block(html, 'modulepreload', preload);
-html = html.replace(/(<link rel="stylesheet" href=")(css\/[\w.-]+\.css)(\?v=[0-9a-f]+)?(")/g, (m, a, f, q, z) => {
-    if (!cssHash[f]) { bad(`index.html links ${f}, which does not exist`); return m; }
-    return `${a}${f}?v=${cssHash[f]}${z}`;
-});
-html = html.replace(/(<script src=")(vendor\/gsap\.min\.js)(\?v=[0-9a-f]+)?(")/, (m, a, f, q, z) => `${a}${f}?v=${vendorHash}${z}`);
-html = html.replace(/(main\.src = ')(js\/main\.js)(\?v=[0-9a-f]+)?(')/, (m, a, f, q, z) => `${a}${f}?v=${jsHash['js/main.js']}${z}`);
-if (!/main\.src = 'js\/main\.js\?v=/.test(html)) bad("index.html: the loader's main.src was not found");
-if (!/<script src="vendor\/gsap\.min\.js\?v=/.test(html)) bad('index.html: the GSAP script tag was not found');
+);
 set('index.html', html);
 
 /* ---------------------------------------------------------- write, or find out what is out of date */
@@ -165,7 +60,6 @@ if (CHECK) {
     for (const rel of stale) writeFileSync(join(site, rel), want.get(rel));
     console.log(stale.length ? `written: ${stale.join(', ')}` : 'nothing to write');
 }
-console.log(`${jsFiles.length} modules (${order.length} at start) and ${Object.keys(cssHash).length} stylesheets fingerprinted`);
 
 /* ---------------------------------------------------------- the checks */
 const SITE_URL = (/\bsite:\s*'(https?:\/\/[^']+)'/.exec(text('js/content/contact.js')) || [])[1];
@@ -199,7 +93,7 @@ for (const f of jsFiles) {
     // a path written as a string is relative to the page, not to the module
     for (const m of src.matchAll(/['"`]((?:\.\.?\/)?(?:img|fonts|icons|vendor|css|js)\/[A-Za-z0-9_\-./&+%]+\.[a-z0-9]+)['"`]/g)) ref('index.html', m[1], 'file name');
 }
-for (const f of siteFiles.filter((f) => f.endsWith('.css'))) {
+for (const f of cssFiles) {
     for (const m of text(f).matchAll(/url\(\s*['"]?([^'")]+)['"]?\s*\)/g)) ref(f, m[1], 'url()');
 }
 // the images the content names (bare file names): the page asks for the small copies _tools/thumbs.mjs made
@@ -211,7 +105,7 @@ for (const f of ['js/content/services.js', 'js/content/work.js']) {
 }
 
 /* the address of the site: one truth, in contact.site */
-const runtime = ['index.html', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml', ...jsFiles, ...siteFiles.filter((f) => f.endsWith('.css'))].filter((f) => exact.has(f));
+const runtime = ['index.html', 'manifest.webmanifest', 'robots.txt', 'sitemap.xml', ...jsFiles, ...cssFiles].filter((f) => exact.has(f));
 for (const f of runtime) if (/mariankadlec\.com\b/i.test(text(f))) bad(`${f} mentions mariankadlec.com (the site is ${SITE_URL})`);
 if (SITE_URL) {
     const need = (label, ok) => { if (!ok) bad(`index.html: ${label} is not ${SITE_URL}/ ...`); };
@@ -228,7 +122,7 @@ if (!htmlText.includes('<meta name="robots" content="index, follow">')) bad('ind
 
 /* nothing from anyone else: no tracker, no font or script CDN, no cookie written, no other origin in a tag that loads something */
 const BANNED = /clarity\.ms|googletagmanager|google-analytics|googleapis\.com|gstatic\.com|cdnjs\.cloudflare|cdn\.jsdelivr|unpkg\.com|facebook\.net|hotjar|plausible\.io|fullstory|mixpanel|segment\.(?:com|io)/i;
-for (const f of ['index.html', ...jsFiles, ...siteFiles.filter((f) => f.endsWith('.css'))]) {
+for (const f of ['index.html', ...jsFiles, ...cssFiles]) {
     const src = text(f);
     const hit = BANNED.exec(src);
     if (hit) bad(`${f} mentions ${hit[0]} (a third party)`);
@@ -241,7 +135,8 @@ for (const m of htmlText.matchAll(/<(script|link|img|iframe|source|video|audio)\
 }
 
 /* what has to ship with the fonts, the share image, GitHub Pages */
-for (const f of ['fonts/OFL-jersey-10.txt', 'fonts/OFL-atkinson-hyperlegible-next.txt', 'fonts/OFL-jetbrains-mono.txt']) {
+for (const name of ['jersey-10', 'atkinson-hyperlegible-next', 'jetbrains-mono', 'mr-dafoe']) {
+    const f = `fonts/OFL-${name}.txt`;
     if (!exact.has(f)) bad(`${f} is missing (the fonts' licence asks for it)`);
 }
 if (!exact.has('og-image.jpg')) bad('og-image.jpg is missing');
